@@ -1,0 +1,25 @@
+# Python caches
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local notebooks / editor clutter
+.DS_Store
+.vscode/
+
+# Generated artifacts
+artifacts/
+
+# Generated demo datasets
+data/*.csv
+
+# Local scratch path accidentally created from editor navigation
+mnt/
+
+# TeX build leftovers
+latex/

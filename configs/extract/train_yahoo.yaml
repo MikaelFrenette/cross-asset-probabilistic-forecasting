@@ -1,0 +1,35 @@
+# Yahoo extraction config for the training feature dataset.
+data:
+  # External data source used by the extractor. This repo currently supports Yahoo only.
+  source: yahoo_finance
+  # Ticker universe downloaded and written into the extracted CSV.
+  tickers:
+    - SPY
+    - AAPL
+    - MSFT
+    - IBM
+    - JPM
+  # Inclusive start date for Yahoo extraction.
+  start_date: "2005-01-01"
+  # Inclusive end date for Yahoo extraction.
+  end_date: "2017-12-31"
+  # Master session calendar used to normalize the daily panel.
+  calendar: "XNYS"
+  # Price field used to compute standard Adj Close-to-Adj Close growth rates.
+  price_field: "Adj Close"
+  # Whether rows with missing returns should be dropped during extraction.
+  drop_missing: false
+
+streams:
+  # Continuous features written to the extracted CSV.
+  continuous:
+    - returns
+  # Dynamic categorical columns written to the extracted CSV. `null` means none.
+  dynamic_categoricals:
+    - null
+  # Static categorical columns written to the extracted CSV.
+  static_categoricals:
+    - ticker
+
+# Output CSV path for the extracted training feature dataset.
+output_csv: "data/train_features.csv"

@@ -1,0 +1,18 @@
+# Plotting config consumed by `scripts/generate_plot.py`.
+# This workflow compares rolling model forecasts against realized targets and a
+# GARCH reference series, then writes one PNG per asset.
+# Frozen manifest produced by `scripts/train.py`.
+manifest_path: "artifacts/demo/training_manifest.json"
+# Rolling prediction CSV produced by `scripts/predict.py`.
+predictions_csv: "artifacts/demo/predictions.csv"
+# Optional rolling benchmark prediction CSV produced by `scripts/predict_garch.py`.
+benchmark_predictions_csv: null
+dataset:
+  # Realized feature CSV used to recover the target series for plotting.
+  csv_path: "data/predict_features.csv"
+  # Column containing the calendar date for each row.
+  date_column: "date"
+  # Column identifying the asset / panel member.
+  id_column: "asset_id"
+# Output directory where per-asset PNG files are written.
+output_dir: "artifacts/demo/plots"

@@ -1,0 +1,12 @@
+# Convenience requirements file for the full public workflow.
+# Source of truth for package metadata remains `pyproject.toml`.
+
+numpy>=1.26
+pandas>=2.0
+pandas_market_calendars>=4.4.0
+pydantic>=2.0
+PyYAML>=6.0
+torch>=2.0
+yfinance>=0.2.54
+matplotlib>=3.8
+arch>=7.0
