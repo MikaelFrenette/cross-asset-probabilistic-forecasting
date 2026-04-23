@@ -1,0 +1,19 @@
+base: ../template.yaml
+
+experiment:
+  name: demo_classification_v1
+
+data:
+  task: classification
+  path: data/synthetic/classification.csv
+
+model:
+  params:
+    output_dim: 3
+    dropout: 0.1
+
+training:
+  loss: cross_entropy
+  callbacks:
+    early_stopping:
+      patience: 15

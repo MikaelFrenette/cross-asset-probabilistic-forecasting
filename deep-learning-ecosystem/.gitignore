@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# dlecosys — .gitignore
+# ---------------------------------------------------------------------------
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+MANIFEST
+pip-wheel-metadata/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type checkers / linters
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Local agent / tooling settings
+.claude/
+
+# Editor tmp / swap artifacts
+*.tmp.*
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# ---------------------------------------------------------------------------
+# Pipeline outputs — all per-run artifacts live here and are re-creatable
+# ---------------------------------------------------------------------------
+outputs/
+
+# ---------------------------------------------------------------------------
+# Data — generated or user-owned datasets
+# Commit curated fixtures intentionally; do NOT commit raw dumps or PII.
+# ---------------------------------------------------------------------------
+data/synthetic/
+data/raw/
+data/interim/
+*.parquet
+*.pq
+*.pt
+# (override: keep small bundled fixtures if you add any)
+!tests/**/*.pt
+
+# TensorBoard event files
+events.out.tfevents.*
+
+# Optuna SQLite storage
+*.db

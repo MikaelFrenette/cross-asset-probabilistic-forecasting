@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# Synthetic data generation config
+# Used by: scripts/generate_synthetic.py
+# ---------------------------------------------------------------------------
+
+regression:
+  task: regression
+  n_samples: 1000
+  n_features: 10
+  noise: 0.1
+  seed: 42
+  output_path: data/synthetic/regression.csv
+  target_col: target
+
+classification:
+  task: classification
+  n_samples: 1200
+  n_features: 10
+  n_classes: 3
+  noise: 0.1
+  seed: 42
+  output_path: data/synthetic/classification.csv
+  target_col: target

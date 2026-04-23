@@ -1,0 +1,132 @@
+# ---------------------------------------------------------------------------
+# dlecosys pipeline template
+# ---------------------------------------------------------------------------
+# All mandatory and optional fields with demo-safe default values.
+#
+# Usage
+# -----
+# Create your own base config:
+#
+#   configs/myproject/base.yaml
+#
+# Set base: null in your base config (it IS the base).
+# For experiment overrides, set base: configs/myproject/base.yaml and
+# include only the fields that differ. Inheritance is capped at 1 level.
+#
+# Data generation (synthetic) is handled separately by generate_synthetic.py.
+# preprocess.py reads the CSV produced by that script (or any CSV you provide).
+# ---------------------------------------------------------------------------
+
+base: null
+
+experiment:
+  name: my_run_v1               # unique name for this run; determines outputs/<name>/
+  seed: 42
+  deterministic: true           # set false to allow non-deterministic cuDNN kernels for throughput
+  output_dir: outputs
+
+data:
+  task: regression              # regression | classification
+  path: data/raw/my_data.csv    # path to raw data — CSV/TSV/Parquet inferred from extension
+  target_col: target            # name of the target column in the CSV
+  test_size: 0.2
+  val_size: 0.1
+  batch_size: 32
+  scaling: standard             # standard | minmax | null (no scaling)
+  categorical_cols: []          # column indices to tokenize (empty = no tokenization)
+
+model:
+  name: mlp                     # must match a key registered via @register(name)
+  params:
+    input_dim: 10               # must match the number of feature columns in your CSV
+    hidden_dims: [64, 32]
+    output_dim: 1
+    activation: relu            # relu | gelu | tanh | silu | leaky_relu
+    dropout: 0.0
+
+training:
+  epochs: 50
+  loss: mse                     # mse | cross_entropy | bce
+  optimizer:
+    name: adam                  # adam | sgd | adamw
+    lr: 0.001
+    weight_decay: 0.0
+  # scheduler: null             # optional LR scheduler
+  # scheduler:
+  #   type: cosine_annealing    # cosine_annealing | step | exponential | reduce_on_plateau
+  #   params:                   # forwarded to the torch scheduler class as kwargs
+  #     T_max: 50
+  metrics: []                   # e.g. [mae, rmse, accuracy]
+  callbacks:
+    early_stopping:
+      enabled: true
+      monitor: val_loss
+      patience: 10
+      mode: min                 # min | max
+      warmup: 0
+    checkpoint:
+      enabled: true
+      monitor: val_loss
+    tensorboard:
+      enabled: false            # true = write event files to <run>/logs/tensorboard/
+  amp: false
+  grad_accumulation_steps: 1
+  grad_clip: 1.0
+  verbose: 1
+
+inference:
+  batch_size: 64
+
+logging:
+  level: INFO                   # DEBUG | INFO | WARNING | ERROR
+  format: text
+  include_timestamps: true
+
+distributed:
+  enabled: false
+  backend: nccl                 # nccl (GPU) | gloo (CPU / fallback)
+
+# tuning: null                  # set this section to run scripts/tune.py
+# tuning:
+#   study_name: my_study        # output goes to outputs/<study_name>/
+#   direction: minimize         # minimize | maximize
+#   metric: val_loss            # name of logged metric to optimize
+#   sampler: grid               # grid | random
+#   n_trials: null              # null = full grid for grid sampler; required for random
+#   pruner:
+#     enabled: false            # true to early-stop unpromising trials
+#     type: median              # median | none
+#     n_warmup_steps: 5         # no pruning before this epoch
+#     n_startup_trials: 5       # no pruning before this many trials complete
+#   splitter:                   # validation strategy per trial
+#     type: holdout             # holdout | kfold | stratified_kfold (or your own subclass)
+#     n_splits: 5               # ignored by holdout
+#     shuffle: true
+#     seed: 42
+#   scale_splits: true          # true = preprocess writes raw + fold loop scales per fold (leak-free)
+#                               # false = preprocess scales once + fold loop uses pre-scaled splits (legacy)
+
+# ensemble: null                # set this section to train a bagging ensemble via scripts/ensemble.py
+# ensemble:
+#   type: bagging               # bagging (or your own subclass)
+#   n_estimators: 20
+#   aggregation: mean           # mean | median | soft_vote | majority
+#   seed: 42
+#   sample_bootstrapper:        # row-level sampling — subclass BaseSampleBootstrapper to extend
+#     type: with_replacement    # with_replacement | no_bootstrap | <your_type>
+#     max_samples: 1.0
+#   feature_bootstrapper:       # column-level sampling — subclass BaseFeatureBootstrapper to extend
+#     type: all                 # all | random_subspace | <your_type>
+#     max_features: 1.0
+#   pruning:                    # post-training top-N selection by OOB metric
+#     enabled: false            # true = only the top N estimators are aggregated at predict time
+#     keep: 10
+#     strategy: top_n           # top_n (v1) | greedy (future)
+#     direction: minimize       # minimize (loss-like) | maximize (accuracy-like)
+#   distributed:                # schema-only in v1 — setting enabled=true raises NotImplementedError
+#     enabled: false
+#     backend: nccl
+#   storage: null               # null = in-memory; "sqlite:///outputs/<study>/study.db" to persist
+#   search_space:               # each entry is dotted.path → list of choices
+#     training.optimizer.lr: [1.0e-4, 1.0e-3, 1.0e-2]
+#     model.params.dropout: [0.0, 0.2, 0.5]

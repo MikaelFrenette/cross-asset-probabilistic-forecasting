@@ -1,0 +1,28 @@
+base: ../template.yaml
+
+experiment:
+  name: demo_regression_tuning     # tuning uses study_name for outputs; this is still the config's name
+
+data:
+  task: regression
+  path: data/synthetic/regression.csv
+
+training:
+  epochs: 30
+
+tuning:
+  study_name: demo_regression_study
+  direction: minimize
+  metric: val_loss
+  sampler: grid
+  pruner:
+    enabled: false
+  splitter:
+    type: kfold
+    n_splits: 3
+    shuffle: true
+    seed: 42
+  search_space:
+    training.optimizer.lr: [1.0e-4, 1.0e-3, 1.0e-2]
+    model.params.dropout: [0.0, 0.2, 0.4]
+    training.optimizer.name: [adam, adamw]

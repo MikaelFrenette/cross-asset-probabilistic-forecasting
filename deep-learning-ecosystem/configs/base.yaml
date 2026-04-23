@@ -1,0 +1,4 @@
+logging:
+  level: INFO
+  format: text
+  include_timestamps: true

@@ -1,0 +1,26 @@
+base: ../template.yaml
+
+experiment:
+  name: demo_regression_ensemble_v1
+
+data:
+  task: regression
+  path: data/synthetic/regression.csv
+
+training:
+  epochs: 30
+  callbacks:
+    early_stopping:
+      patience: 8
+
+ensemble:
+  type: bagging
+  n_estimators: 10
+  aggregation: mean
+  seed: 42
+  sample_bootstrapper:
+    type: with_replacement
+    max_samples: 1.0
+  feature_bootstrapper:
+    type: all
+    max_features: 1.0

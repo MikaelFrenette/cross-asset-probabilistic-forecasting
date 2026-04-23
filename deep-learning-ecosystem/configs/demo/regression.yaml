@@ -1,0 +1,8 @@
+base: ../template.yaml
+
+experiment:
+  name: demo_regression_v1
+
+data:
+  task: regression
+  path: data/synthetic/regression.csv

@@ -1,0 +1,16 @@
+base: ../template.yaml
+
+experiment:
+  name: demo_regression_ddp_v1
+
+data:
+  task: regression
+  path: data/synthetic/regression.csv
+
+model:
+  params:
+    dropout: 0.1
+
+distributed:
+  enabled: true
+  backend: nccl
