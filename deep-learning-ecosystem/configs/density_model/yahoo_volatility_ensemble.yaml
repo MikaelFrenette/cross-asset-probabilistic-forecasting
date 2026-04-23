@@ -1,0 +1,73 @@
+# Yahoo volatility — panel density model bagging ensemble config.
+# Consumed by scripts/ensemble.py. Each estimator bootstraps its own forecast
+# dates (with OOB-as-val), re-fits its preprocessing bundle, and writes its
+# own artifacts under <artifacts.output_dir>/ensemble/estimator_k/. After all
+# estimators finish, optional top-N pruning keeps the best survivors.
+
+data:
+  train_csv: "../data/train_features.csv"
+  val_csv: "../data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 60
+  forecast_horizon: 1
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+
+model:
+  name: "causal_cross_asset_transformer"
+  params:
+    d_model: 32
+    dim_feedforward: 64
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 64
+  learning_rate: 0.0001
+  max_epochs: 1
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 0
+
+early_stopping:
+  enabled: false
+
+model_checkpoint:
+  enabled: false
+
+artifacts:
+  output_dir: "../outputs/density_model_yahoo_ensemble_v1"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+ensemble:
+  type: "bagging"
+  n_estimators: 3
+  aggregation: "mean"
+  sample_bootstrapper:
+    type: "with_replacement"
+    max_samples: 0.8
+  feature_bootstrapper:
+    type: "all"
+    max_features: 1.0
+  pruning:
+    enabled: false
+    keep: 2
+    strategy: "top_n"
+  seed: 42

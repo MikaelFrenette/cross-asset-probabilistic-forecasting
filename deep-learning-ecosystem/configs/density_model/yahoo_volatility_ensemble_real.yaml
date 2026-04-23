@@ -1,0 +1,77 @@
+# Yahoo volatility — real bagging ensemble config.
+# 10 estimators × 10 epochs each with OOB-as-val and EarlyStopping;
+# top-N pruning keeps the best 6 survivors. Inference aggregates via mean
+# mu and law-of-total-variance sigma.
+
+data:
+  train_csv: "../data/train_features.csv"
+  val_csv: "../data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 60
+  forecast_horizon: 1
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+
+model:
+  name: "causal_cross_asset_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 64
+  learning_rate: 0.0001
+  max_epochs: 10
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 1
+
+early_stopping:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  patience: 3
+  restore_best_weights: true
+  verbose: true
+
+model_checkpoint:
+  enabled: false
+
+artifacts:
+  output_dir: "../outputs/density_model_yahoo_ensemble_real"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+ensemble:
+  type: "bagging"
+  n_estimators: 10
+  aggregation: "mean"
+  sample_bootstrapper:
+    type: "with_replacement"
+    max_samples: 0.8
+  feature_bootstrapper:
+    type: "all"
+    max_features: 1.0
+  pruning:
+    enabled: true
+    keep: 6
+    strategy: "top_n"
+  seed: 42
