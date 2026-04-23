@@ -1,13 +1,15 @@
 """
-train.py — Train a model for a pipeline run.
+train.py — Train a panel forecasting model for a pipeline run.
+
+Expects that ``scripts/preprocess.py`` has already written the preprocessing
+bundle and vectorized panels into the configured artifacts directory. Loads
+those, builds the registered model via :class:`ModelFactory`, runs
+:class:`PanelTrainer` with mask-aware Gaussian NLL, and writes the trained
+model weights + training manifest.
 
 Usage
 -----
-    # Single-GPU / CPU
-    python scripts/train.py --config configs/demo/regression.yaml
-
-    # Multi-GPU (DDP) — set distributed.enabled: true in config
-    torchrun --nproc_per_node=4 scripts/train.py --config configs/myproject/exp.yaml
+    python scripts/train.py --config configs/density_model/yahoo_volatility.yaml
 """
 
 import argparse
@@ -17,41 +19,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import dlecosys.models  # noqa: F401 — registers bundled models with the factory
-
-from dlecosys.shared.config import configure_logging, load_config
-from dlecosys.shared.run import RunLayout
-from dlecosys.shared.training import run_training
+from dlecosys.shared.config.logging import configure_logging
+from dlecosys.shared.config.panel_schema import load_panel_pipeline_config
+from dlecosys.shared.training.panel_run import run_panel_training
 
 logger = logging.getLogger(__name__)
 
+__all__ = []
+
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train a model for a run.")
-    parser.add_argument("--config", required=True, help="Path to pipeline YAML config.")
-    parser.add_argument("--overwrite", action="store_true", help="Overwrite existing checkpoints/logs.")
+    parser = argparse.ArgumentParser(description="Train a panel forecasting model.")
+    parser.add_argument("--config", required=True, help="Path to panel pipeline YAML config.")
     args = parser.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = load_panel_pipeline_config(args.config)
     configure_logging(cfg.logging)
 
-    if cfg.ensemble is not None:
-        logger.error(
-            "config has an 'ensemble' section — use scripts/ensemble.py, not train.py"
-        )
-        sys.exit(1)
-
-    layout = RunLayout(cfg.experiment.output_dir, cfg.experiment.name)
-
-    if not layout.data_dir.exists():
-        logger.error("data not found at %s — run preprocess.py first", layout.data_dir)
-        sys.exit(1)
-
-    if layout.checkpoint_path.exists() and not args.overwrite:
-        logger.error("checkpoint already exists at %s — use --overwrite to retrain", layout.checkpoint_path)
-        sys.exit(1)
-
-    run_training(cfg, layout, summary_extras={"run_name": cfg.experiment.name})
+    output_dir = run_panel_training(cfg)
+    print(f"artifacts_dir={output_dir}")
 
 
 if __name__ == "__main__":

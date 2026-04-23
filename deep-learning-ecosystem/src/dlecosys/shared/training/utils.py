@@ -336,7 +336,8 @@ class ProgressBar:
         for name, val in self._last_logs.items():
             parts.append(f"- {name}: {val:.4f}")
 
-        sys.stdout.write(" ".join(parts))
+        line = " ".join(parts)
+        sys.stdout.write(line + self._clear_eol())
         sys.stdout.flush()
 
     def reset(self, steps_per_epoch: int, name: Optional[str] = None) -> None:
@@ -380,8 +381,15 @@ class ProgressBar:
         for name, val in self._last_logs.items():
             parts.append(f"- {name}: {val:.4f}")
 
-        sys.stdout.write(" ".join(parts) + "\n")
+        line = " ".join(parts)
+        sys.stdout.write(line + self._clear_eol() + "\n")
         sys.stdout.flush()
 
         self._reset_epoch_timer()
+
+    def _clear_eol(self) -> str:
+        """Return ANSI erase-to-end-of-line when on a TTY, else trailing space padding."""
+        if self._use_ansi:
+            return "\033[K"
+        return " " * 80
         

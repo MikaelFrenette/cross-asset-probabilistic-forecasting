@@ -1,0 +1,90 @@
+# Yahoo volatility — panel density model training config.
+# Consumed by scripts/preprocess.py and scripts/train.py.
+#
+# The feature CSVs must already be produced (e.g. by the legacy
+# `scripts/extract_features.py` in the old density_model repo) and live at the
+# paths below. Each CSV must contain at least columns: date, asset_id, return,
+# ticker.
+
+data:
+  # Training feature CSV.
+  train_csv: "../data/train_features.csv"
+  # Validation feature CSV.
+  val_csv: "../data/val_features.csv"
+  # Calendar-date column.
+  date_column: "date"
+  # Entity-identifier column.
+  id_column: "asset_id"
+
+features:
+  # Number of historical daily observations supplied to the model.
+  sequence_length: 60
+  # Forecast horizon in daily steps. 1 = next-session prediction.
+  forecast_horizon: 1
+  # Supervised target column predicted by the model and scored by the likelihood.
+  target_column: "return"
+  # Raw column names assigned to each model input stream.
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+
+model:
+  # Registered model name in the dlecosys model registry.
+  name: "causal_cross_asset_transformer"
+  # Forwarded to the model's Pydantic config class. Runtime-derived fields
+  # (continuous_dim, *_cardinalities) are injected by the training pipeline.
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 64
+  learning_rate: 0.0001
+  max_epochs: 50
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 2
+
+early_stopping:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  patience: 10
+  min_delta: 0.0
+  warmup: 0
+  restore_best_weights: true
+  verbose: true
+
+model_checkpoint:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  min_delta: 0.0
+  warmup: 0
+  save_optimizer: true
+  overwrite: true
+  verbose: true
+
+artifacts:
+  # Artifacts directory (model weights, preprocessing bundle, manifest,
+  # vectorized panels). Relative paths resolve against the invocation CWD.
+  output_dir: "../outputs/density_model_yahoo_v1"
+  preprocessing_filename: "preprocessing.json"
+  model_state_filename: "model.pt"
+  manifest_filename: "training_manifest.json"
+  predictions_filename: "predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

@@ -1,0 +1,69 @@
+# Yahoo volatility — DDP training config. Launch with:
+#     torchrun --nproc_per_node=N scripts/train.py --config configs/density_model/yahoo_volatility_ddp.yaml
+# Requires N CUDA devices. The preprocess step is single-process and must run
+# before train.py (same as the non-DDP lane).
+
+data:
+  train_csv: "../data/train_features.csv"
+  val_csv: "../data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 60
+  forecast_horizon: 1
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+
+model:
+  name: "causal_cross_asset_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 64  # per-rank; global batch = 64 * world_size
+  learning_rate: 0.0001
+  max_epochs: 50
+  random_seed: 42
+  device: "cuda"  # overridden per-rank to cuda:{LOCAL_RANK}
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 1
+
+early_stopping:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  patience: 10
+  restore_best_weights: true
+  verbose: true
+
+model_checkpoint:
+  enabled: true
+  monitor: "val_loss"
+  save_optimizer: true
+  overwrite: true
+  verbose: true
+
+artifacts:
+  output_dir: "../outputs/density_model_yahoo_ddp_v1"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+distributed:
+  enabled: true
+  backend: "nccl"
