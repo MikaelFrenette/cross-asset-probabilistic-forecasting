@@ -1,0 +1,76 @@
+# Yahoo volatility — real tuning study (small grid, budget ~ 1–2 hr on CPU).
+# Searches over learning rate, dropout, and d_model using 3-fold expanding-
+# window CV, 5 epochs per fold. Outputs best_config.yaml for the winning
+# trial under <artifacts.output_dir>/studies/yahoo_vol_search_real/.
+
+data:
+  train_csv: "../data/train_features.csv"
+  val_csv: "../data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 60
+  forecast_horizon: 1
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+
+model:
+  name: "causal_cross_asset_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 64
+  learning_rate: 0.0001
+  max_epochs: 1   # ignored by tuning; each fold uses tuning.epochs_per_fold
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 0
+
+early_stopping:
+  enabled: false
+
+model_checkpoint:
+  enabled: false
+
+artifacts:
+  output_dir: "../outputs/density_model_yahoo_v1"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+tuning:
+  study_name: "yahoo_vol_search_real"
+  direction: "minimize"
+  metric: "val_loss"
+  sampler: "grid"
+  epochs_per_fold: 5
+  pruner:
+    enabled: true
+    type: "median"
+    n_warmup_steps: 1
+    n_startup_trials: 2
+  splitter:
+    type: "expanding_window"
+    n_splits: 3
+  search_space:
+    # 3 × 3 × 2 = 18 trials × 3 folds × 5 epochs
+    training.learning_rate: [0.00005, 0.0001, 0.0003]
+    model.params.dropout: [0.0, 0.1, 0.2]
+    model.params.d_model: [32, 64]
