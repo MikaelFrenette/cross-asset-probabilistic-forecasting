@@ -5,8 +5,8 @@ optuna = pytest.importorskip("optuna")
 from optuna.pruners import MedianPruner, NopPruner
 from optuna.samplers import GridSampler, RandomSampler
 
-from dlecosys.shared.config.schema import PrunerSection, TuningSection
-from dlecosys.shared.tuning.study import build_pruner, build_sampler, build_study
+from density_model.shared.config.schema import PrunerSection, TuningSection
+from density_model.shared.tuning.study import build_pruner, build_sampler, build_study
 
 
 def _tuning(**kwargs) -> TuningSection:

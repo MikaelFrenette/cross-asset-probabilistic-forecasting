@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from dlecosys.shared.config.schema import SyntheticConfig
-from dlecosys.shared.data.synthetic import make_classification_data, make_regression_data
-from dlecosys.shared.reproducibility import seed_everything
+from density_model.shared.config.schema import SyntheticConfig
+from density_model.shared.data.synthetic import make_classification_data, make_regression_data
+from density_model.shared.reproducibility import seed_everything
 
 
 def main() -> None:

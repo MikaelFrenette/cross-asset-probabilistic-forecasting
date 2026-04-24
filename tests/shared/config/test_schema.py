@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from dlecosys.shared.config.schema import (
+from density_model.shared.config.schema import (
     DataSection,
     ExperimentSection,
     ModelSection,

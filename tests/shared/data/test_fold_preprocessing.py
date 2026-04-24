@@ -1,8 +1,8 @@
 import torch
 from torch.utils.data import TensorDataset
 
-from dlecosys.shared.config.schema import DataSection
-from dlecosys.shared.data import preprocess_fold
+from density_model.shared.config.schema import DataSection
+from density_model.shared.data import preprocess_fold
 
 
 def _data_cfg(**kw):

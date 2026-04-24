@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from dlecosys.shared.training.process_group import (
+from density_model.shared.training.process_group import (
     get_local_rank,
     get_rank,
     get_world_size,

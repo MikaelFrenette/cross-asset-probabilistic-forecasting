@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from dlecosys.shared.config.schema import DistributedSection, PipelineConfig
+from density_model.shared.config.schema import DistributedSection, PipelineConfig
 
 
 class TestDistributedSection:
@@ -35,7 +35,7 @@ class TestPipelineConfigDistributed:
         p = tmp_path / "cfg.yaml"
         p.write_text(yaml.dump(data))
 
-        from dlecosys.shared.config.loader import load_config
+        from density_model.shared.config.loader import load_config
         cfg = load_config(p)
         assert cfg.distributed.enabled is False
         assert cfg.distributed.backend == "nccl"

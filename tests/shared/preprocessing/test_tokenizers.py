@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from dlecosys.shared.preprocessing import IntegerTokenizer, StringTokenizer
+from density_model.shared.preprocessing import IntegerTokenizer, StringTokenizer
 
 
 class TestIntegerTokenizer:

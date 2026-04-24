@@ -1,6 +1,6 @@
 import pytest
 
-from dlecosys.shared.run import DataPaths, RunLayout, StudyLayout
+from density_model.shared.run import DataPaths, RunLayout, StudyLayout
 
 
 class TestStudyLayout:

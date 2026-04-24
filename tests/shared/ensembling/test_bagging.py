@@ -1,15 +1,15 @@
 import pytest
 import torch
 
-from dlecosys.shared.config.schema import EnsembleSection, FeatureBootstrapperSection, SampleBootstrapperSection
-from dlecosys.shared.ensembling.bagging import BaggingEnsemble
-from dlecosys.shared.ensembling.base import BaseEnsemble
-from dlecosys.shared.ensembling.bootstrappers import (
+from density_model.shared.config.schema import EnsembleSection, FeatureBootstrapperSection, SampleBootstrapperSection
+from density_model.shared.ensembling.bagging import BaggingEnsemble
+from density_model.shared.ensembling.base import BaseEnsemble
+from density_model.shared.ensembling.bootstrappers import (
     AllFeaturesBootstrapper,
     RandomSubspaceBootstrapper,
     WithReplacementBootstrapper,
 )
-from dlecosys.shared.ensembling.build import build_ensemble
+from density_model.shared.ensembling.build import build_ensemble
 
 
 class TestBaseContract:
@@ -91,7 +91,7 @@ class TestBuildEnsemble:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             e = build_ensemble(cfg)
-        from dlecosys.shared.ensembling.bootstrappers import NoBootstrapBootstrapper
+        from density_model.shared.ensembling.bootstrappers import NoBootstrapBootstrapper
         assert isinstance(e.sample_bootstrapper, NoBootstrapBootstrapper)
 
     def test_invalid_ensemble_type_raises(self):

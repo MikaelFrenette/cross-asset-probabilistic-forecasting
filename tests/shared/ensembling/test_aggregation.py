@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from dlecosys.shared.ensembling.aggregation import aggregate
+from density_model.shared.ensembling.aggregation import aggregate
 
 
 class TestAggregate:

@@ -29,7 +29,7 @@ features:
   static_categorical_columns: ["ticker"]
 
 model:
-  # Registered model name in the dlecosys model registry.
+  # Registered model name in the density_model model registry.
   name: "causal_cross_asset_transformer"
   # Forwarded to the model's Pydantic config class. Runtime-derived fields
   # (continuous_dim, *_cardinalities) are injected by the training pipeline.

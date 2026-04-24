@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from dlecosys.shared.run import RunLayout
+from density_model.shared.run import RunLayout
 
 
 class TestRunLayoutPaths:

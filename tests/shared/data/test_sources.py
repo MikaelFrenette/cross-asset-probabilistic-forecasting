@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from dlecosys.shared.data import load_tabular
+from density_model.shared.data import load_tabular
 
 
 @pytest.fixture

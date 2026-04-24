@@ -3,7 +3,7 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dlecosys"
+name = "density_model"
 version = "0.1.0"
 description = "Deep learning ecosystem — model-agnostic training infrastructure."
 requires-python = ">=3.10"

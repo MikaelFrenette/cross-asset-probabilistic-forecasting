@@ -1,6 +1,6 @@
 import pytest
 
-from dlecosys.shared.tuning.search_space import (
+from density_model.shared.tuning.search_space import (
     apply_suggestion,
     from_hashable,
     to_hashable,

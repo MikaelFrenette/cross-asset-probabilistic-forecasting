@@ -1,6 +1,6 @@
 import torch
 
-from dlecosys.shared.data import apply_transforms, fit_transforms
+from density_model.shared.data import apply_transforms, fit_transforms
 
 
 class TestFitTransforms:

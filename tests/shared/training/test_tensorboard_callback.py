@@ -3,7 +3,7 @@ import pytest
 torch = pytest.importorskip("torch")
 pytest.importorskip("tensorboard")
 
-from dlecosys.shared.training.callbacks import TensorBoardCallback
+from density_model.shared.training.callbacks import TensorBoardCallback
 
 
 class TestTensorBoardCallback:

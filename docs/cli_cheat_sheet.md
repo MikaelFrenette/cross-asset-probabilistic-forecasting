@@ -1,6 +1,6 @@
 # CLI Cheat Sheet
 
-Every command in `dlecosys` takes `--config <path>`. The config drives everything — training, tuning, ensembling, inference all read from the same YAML.
+Every command in `density_model` takes `--config <path>`. The config drives everything — training, tuning, ensembling, inference all read from the same YAML.
 
 ---
 
@@ -163,6 +163,6 @@ pytest --tb=short -q                            # compact output
 - Tuning + DDP in the same config is not supported. Tune on single GPU; DDP-train the winner.
 - `preprocess.py` writes **raw** tensors (no scaling) when `tuning.scale_splits: true` OR `ensemble:` is set, because per-fold / per-estimator scaling happens on the fly.
 - Config inheritance is capped at one level. A child's `base:` must point to a config with `base: null`.
-- Every custom model must be imported in `src/dlecosys/models/__init__.py` so the `@register` decorator fires.
+- Every custom model must be imported in `src/density_model/models/__init__.py` so the `@register` decorator fires.
 
 See [AGENTS.md](../AGENTS.md) for the "task → edit site" map when adding new components.

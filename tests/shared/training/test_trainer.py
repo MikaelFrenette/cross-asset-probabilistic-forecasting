@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
-from dlecosys.shared.training import Trainer, EarlyStopping
-from dlecosys.shared.metrics import mae
+from density_model.shared.training import Trainer, EarlyStopping
+from density_model.shared.metrics import mae
 
 
 def _loader(n=20, features=4, batch_size=5, seed=0):
@@ -119,7 +119,7 @@ class TestTrainerCallbackIntegration:
         assert len(t.logger.history) < 50
 
     def test_model_checkpoint_saved(self, tmp_path):
-        from dlecosys.shared.training import ModelCheckpoint
+        from density_model.shared.training import ModelCheckpoint
         path = str(tmp_path / "best.pt")
         cb = ModelCheckpoint(filepath=path, monitor="val_loss", verbose=False)
         t = _trainer(callbacks=[cb])

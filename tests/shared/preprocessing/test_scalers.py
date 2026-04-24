@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import torch
-from dlecosys.shared.preprocessing import StandardScaler
+from density_model.shared.preprocessing import StandardScaler
 
 
 @pytest.fixture

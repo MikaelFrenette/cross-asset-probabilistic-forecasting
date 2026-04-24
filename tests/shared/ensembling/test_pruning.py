@@ -1,7 +1,7 @@
 import pytest
 
-from dlecosys.shared.config.schema import EnsemblePruningSection
-from dlecosys.shared.ensembling.pruning import select_estimators
+from density_model.shared.config.schema import EnsemblePruningSection
+from density_model.shared.ensembling.pruning import select_estimators
 
 
 def _results(values):

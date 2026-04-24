@@ -2,7 +2,7 @@ import pytest
 import yaml
 from pathlib import Path
 
-from dlecosys.shared.config.loader import ConfigError, load_config
+from density_model.shared.config.loader import ConfigError, load_config
 
 
 def _write(path: Path, data: dict) -> Path:

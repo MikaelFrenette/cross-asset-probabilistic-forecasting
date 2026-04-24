@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from dlecosys.shared.inference import Predictor
+from density_model.shared.inference import Predictor
 
 
 def test_predict_from_numpy():
@@ -53,7 +53,7 @@ def test_from_checkpoint_loads_weights(tmp_path):
 
 
 def test_predict_with_preprocessor():
-    from dlecosys.shared.preprocessing import StandardScaler
+    from density_model.shared.preprocessing import StandardScaler
 
     rng = np.random.default_rng(0)
     X_train = rng.standard_normal((50, 3)).astype(np.float64)

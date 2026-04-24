@@ -1,8 +1,8 @@
 import pytest
 import torch
 
-from dlecosys.shared.config.builders import build_scheduler
-from dlecosys.shared.config.schema import SchedulerSection
+from density_model.shared.config.builders import build_scheduler
+from density_model.shared.config.schema import SchedulerSection
 
 
 def _opt():

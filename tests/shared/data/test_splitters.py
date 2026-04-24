@@ -1,15 +1,15 @@
 import pytest
 import torch
 
-from dlecosys.shared.config.schema import SplitterSection
-from dlecosys.shared.data import (
+from density_model.shared.config.schema import SplitterSection
+from density_model.shared.data import (
     BaseSplitter,
     HoldoutSplitter,
     KFoldSplitter,
     StratifiedKFoldSplitter,
     build_splitter,
 )
-from dlecosys.shared.run import RunLayout
+from density_model.shared.run import RunLayout
 
 
 def _write_split(path, n: int, d: int = 4, label_cls: int = None) -> None:

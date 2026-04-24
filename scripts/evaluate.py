@@ -24,9 +24,9 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from dlecosys.shared.config import configure_logging, load_config
-from dlecosys.shared.metrics import accuracy, mae, mse, rmse
-from dlecosys.shared.run import EnsembleLayout, RunLayout
+from density_model.shared.config import configure_logging, load_config
+from density_model.shared.metrics import accuracy, mae, mse, rmse
+from density_model.shared.run import EnsembleLayout, RunLayout
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from dlecosys.shared.config.schema import EnsembleDistributedSection, EnsembleSection
+from density_model.shared.config.schema import EnsembleDistributedSection, EnsembleSection
 
 
 class TestEnsembleSection:
@@ -27,12 +27,12 @@ class TestEnsembleSection:
             EnsembleSection(aggregation="geometric")
 
     def test_invalid_sample_bootstrapper_type(self):
-        from dlecosys.shared.config.schema import SampleBootstrapperSection
+        from density_model.shared.config.schema import SampleBootstrapperSection
         with pytest.raises(ValidationError):
             SampleBootstrapperSection(type="knn")
 
     def test_invalid_feature_bootstrapper_type(self):
-        from dlecosys.shared.config.schema import FeatureBootstrapperSection
+        from density_model.shared.config.schema import FeatureBootstrapperSection
         with pytest.raises(ValidationError):
             FeatureBootstrapperSection(type="pca")
 

@@ -2,9 +2,9 @@ import pytest
 import torch.nn as nn
 from pydantic import ValidationError
 
-import dlecosys.models  # side-effect: registers "mlp"
-from dlecosys.shared.models import ModelConfig, ModelFactory, register
-from dlecosys.models.mlp import MLPConfig
+import density_model.models  # side-effect: registers "mlp"
+from density_model.shared.models import ModelConfig, ModelFactory, register
+from density_model.models.mlp import MLPConfig
 
 
 class TestModelFactoryBuild:

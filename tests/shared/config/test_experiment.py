@@ -1,4 +1,4 @@
-from dlecosys.shared.config.schema import ExperimentSection
+from density_model.shared.config.schema import ExperimentSection
 
 
 class TestExperimentDefaults:

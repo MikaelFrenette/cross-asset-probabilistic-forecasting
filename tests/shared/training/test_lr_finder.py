@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
-from dlecosys.shared.training import LRFinder, LRFinderResult, Trainer
+from density_model.shared.training import LRFinder, LRFinderResult, Trainer
 
 
 def _make_trainer(seed=0):

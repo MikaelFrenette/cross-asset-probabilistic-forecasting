@@ -1,7 +1,7 @@
 import pytest
 import torch
 import pandas as pd
-from dlecosys.shared.training import MetricsTracker
+from density_model.shared.training import MetricsTracker
 
 
 class TestMetricsTracker:

@@ -3,8 +3,8 @@ import logging
 import pytest
 from pydantic import ValidationError
 
-from dlecosys.shared.config.logging import configure_logging
-from dlecosys.shared.config.schema import LoggingSection
+from density_model.shared.config.logging import configure_logging
+from density_model.shared.config.schema import LoggingSection
 
 
 class TestLoggingSection:

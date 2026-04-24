@@ -1,6 +1,6 @@
 import torch
 
-from dlecosys.shared.ensembling.runner import _remap_categorical_cols
+from density_model.shared.ensembling.runner import _remap_categorical_cols
 
 
 class TestRemapCategoricalCols:

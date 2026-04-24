@@ -4,8 +4,8 @@ produces a valid, reloadable PipelineConfig with tuning removed and winning
 params applied.
 """
 
-from dlecosys.shared.config.schema import PipelineConfig
-from dlecosys.shared.tuning.search_space import apply_suggestion, from_hashable
+from density_model.shared.config.schema import PipelineConfig
+from density_model.shared.tuning.search_space import apply_suggestion, from_hashable
 
 
 def _base_cfg_dict():

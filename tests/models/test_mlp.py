@@ -2,7 +2,7 @@ import pytest
 import torch
 from pydantic import ValidationError
 
-from dlecosys.models.mlp import MLP, MLPConfig
+from density_model.models.mlp import MLP, MLPConfig
 
 
 def _model(input_dim=4, **kwargs) -> MLP:

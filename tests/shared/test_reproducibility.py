@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from dlecosys.shared.reproducibility import seed_everything
+from density_model.shared.reproducibility import seed_everything
 
 
 def test_same_seed_produces_same_torch_output():

@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from dlecosys.shared.data.validation import validate_split, validate_splits
+from density_model.shared.data.validation import validate_split, validate_splits
 
 
 def _ok():

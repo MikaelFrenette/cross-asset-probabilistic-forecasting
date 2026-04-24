@@ -22,9 +22,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from dlecosys.shared.config.logging import configure_logging
-from dlecosys.shared.config.panel_schema import load_panel_pipeline_config
-from dlecosys.shared.ensembling.panel.run import run_panel_ensemble
+from density_model.shared.config.logging import configure_logging
+from density_model.shared.config.panel_schema import load_panel_pipeline_config
+from density_model.shared.ensembling.panel.run import run_panel_ensemble
 
 logger = logging.getLogger(__name__)
 

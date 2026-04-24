@@ -1,6 +1,6 @@
 import pytest
 import torch
-from dlecosys.shared.metrics import accuracy, binary_accuracy
+from density_model.shared.metrics import accuracy, binary_accuracy
 
 
 class TestAccuracy:

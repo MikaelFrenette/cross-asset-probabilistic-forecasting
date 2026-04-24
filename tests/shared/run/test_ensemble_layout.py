@@ -1,6 +1,6 @@
 import pytest
 
-from dlecosys.shared.run import DataPaths, EnsembleLayout, RunLayout
+from density_model.shared.run import DataPaths, EnsembleLayout, RunLayout
 
 
 class TestEnsembleLayout:

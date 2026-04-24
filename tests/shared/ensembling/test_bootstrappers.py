@@ -3,7 +3,7 @@ import warnings
 import pytest
 import torch
 
-from dlecosys.shared.ensembling.bootstrappers import (
+from density_model.shared.ensembling.bootstrappers import (
     AllFeaturesBootstrapper,
     BaseFeatureBootstrapper,
     BaseSampleBootstrapper,
@@ -132,7 +132,7 @@ class TestRandomSubspace:
 
 class TestBuildDispatch:
     def test_build_with_replacement(self):
-        from dlecosys.shared.config.schema import SampleBootstrapperSection
+        from density_model.shared.config.schema import SampleBootstrapperSection
         b = build_sample_bootstrapper(
             SampleBootstrapperSection(type="with_replacement", max_samples=0.8)
         )
@@ -140,19 +140,19 @@ class TestBuildDispatch:
         assert b.max_samples == 0.8
 
     def test_build_no_bootstrap(self):
-        from dlecosys.shared.config.schema import SampleBootstrapperSection
+        from density_model.shared.config.schema import SampleBootstrapperSection
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             b = build_sample_bootstrapper(SampleBootstrapperSection(type="no_bootstrap"))
         assert isinstance(b, NoBootstrapBootstrapper)
 
     def test_build_all_features(self):
-        from dlecosys.shared.config.schema import FeatureBootstrapperSection
+        from density_model.shared.config.schema import FeatureBootstrapperSection
         b = build_feature_bootstrapper(FeatureBootstrapperSection(type="all"))
         assert isinstance(b, AllFeaturesBootstrapper)
 
     def test_build_random_subspace(self):
-        from dlecosys.shared.config.schema import FeatureBootstrapperSection
+        from density_model.shared.config.schema import FeatureBootstrapperSection
         b = build_feature_bootstrapper(
             FeatureBootstrapperSection(type="random_subspace", max_features=0.6)
         )

@@ -1,6 +1,6 @@
 import pytest
 import torch
-from dlecosys.shared.metrics import mae, mse, rmse, mape
+from density_model.shared.metrics import mae, mse, rmse, mape
 
 
 def _t(*vals):

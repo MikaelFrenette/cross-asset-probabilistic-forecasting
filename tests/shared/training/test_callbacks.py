@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from unittest.mock import MagicMock
 
-from dlecosys.shared.training.callbacks import (
+from density_model.shared.training.callbacks import (
     CallbackList,
     EarlyStopping,
     GradNormCallback,
@@ -218,7 +218,7 @@ class TestGradNormCallback:
         loss.backward()
         cb.set_trainer(trainer)
         # Attach a real MetricsTracker so the update doesn't crash.
-        from dlecosys.shared.training.utils import MetricsTracker
+        from density_model.shared.training.utils import MetricsTracker
         trainer.logger = MetricsTracker()
         cb.on_train_step_end(step=1, batch=None, outputs={}, logs={})
         assert "grad_norm" in trainer.logger.last_log()
@@ -229,7 +229,7 @@ class TestGradNormCallback:
         loss = trainer.model(torch.randn(2, 2)).sum()
         loss.backward()
         cb.set_trainer(trainer)
-        from dlecosys.shared.training.utils import MetricsTracker
+        from density_model.shared.training.utils import MetricsTracker
         trainer.logger = MetricsTracker()
         cb.on_train_step_end(step=1, batch=None, outputs={}, logs={})
         assert trainer.logger.last_log()["grad_norm"] > 0
@@ -239,7 +239,7 @@ class TestGradNormCallback:
         trainer = _FakeTrainer()
         # Gradients are None by default (no backward called).
         cb.set_trainer(trainer)
-        from dlecosys.shared.training.utils import MetricsTracker
+        from density_model.shared.training.utils import MetricsTracker
         trainer.logger = MetricsTracker()
         cb.on_train_step_end(step=1, batch=None, outputs={}, logs={})
         assert trainer.logger.last_log()["grad_norm"] == pytest.approx(0.0)
@@ -248,7 +248,7 @@ class TestGradNormCallback:
         cb = GradNormCallback(log_key="my_norm")
         trainer = _FakeTrainer()
         cb.set_trainer(trainer)
-        from dlecosys.shared.training.utils import MetricsTracker
+        from density_model.shared.training.utils import MetricsTracker
         trainer.logger = MetricsTracker()
         cb.on_train_step_end(step=1, batch=None, outputs={}, logs={})
         assert "my_norm" in trainer.logger.last_log()
