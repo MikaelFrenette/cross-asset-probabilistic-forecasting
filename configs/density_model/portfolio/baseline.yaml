@@ -1,0 +1,64 @@
+# Baseline portfolio-construction run.
+#
+# Takes the density model's predictions.csv (μ, σ per asset per forecast
+# date) plus realized daily returns, and runs a strict-no-lookahead
+# mean-variance backtest under a full-investment constraint:
+#
+#     α_t = zscore(μ_t / σ_t)                       across assets at t
+#     Σ_t = rolling sample covariance                from returns strictly < t
+#     w_t = argmax_w α_t'w − (λ/2) w'Σ_t w     s.t.  1'w = 1
+#     portfolio_return_{t} = w_t · r_t
+#
+# Every decision below is a knob — swap estimators, optimizer, window,
+# risk-aversion, long-only, missing-data policy, backtest window, etc.
+
+predictions_csv: "outputs/density_model_yahoo_next_step_ensemble_v1/predictions.csv"
+realized_returns_csv: "data/predict_features.csv"
+
+# Column names in the two CSVs (defaults match scripts/predict.py output).
+date_column: "date"
+id_column: "asset_id"
+return_column: "return"
+forecast_date_column: "forecast_start_date"
+mu_column: "mu"
+sigma_column: "sigma"
+
+alpha:
+  type: "mu_sigma_zscore"          # → α = zscore(μ/σ) cross-sectionally
+
+risk_model:
+  type: "rolling"                   # future: expanding | ewma | shrinkage
+  window_size: 96                  # ~6 months of trading days
+  ridge: 1.0e-4                     # regularizer magnitude
+  ridge_mode: "absolute"            # absolute → raw scalar added to Σ's diagonal
+                                    # relative → ridge · mean(diag(Σ))  (scale-portable)
+                                    # absolute 1e-4 ≈ the typical daily return variance,
+                                    # giving ~50% shrinkage toward identity — enough to
+                                    # tame near-collinear 20×126 sample covariances.
+
+optimizer:
+  type: "mean_variance"
+  # λ scale intuition for daily returns:
+  #   diag(Σ) ~ 1e-4  (daily return variance, ~1% vol)
+  #   z-scored α ~ O(1)
+  #   |w| ≈ |α| / (λ · diag(Σ)) = 1e4 / λ
+  # So λ = 1e4 produces |w| ~ 1; smaller λ rides the α signal harder, larger
+  # λ pulls toward the minimum-variance portfolio.
+  risk_aversion: 100000.0
+  long_only: false                  # true → SLSQP with w ≥ 0; false → closed-form
+  full_investment: true             # sum(w) = 1
+
+backtest:
+  start_date: null                  # null → earliest forecast date
+  end_date: null                    # null → latest forecast date
+  burn_in_days: null                # null → defaults to risk_model.window_size
+  missing_asset_policy: "drop_asset"  # drop_asset | drop_date
+  periods_per_year: 252             # for Sharpe / annual-return annualization
+
+output_dir: "outputs/portfolios/baseline_v1"
+run_name: "baseline"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
