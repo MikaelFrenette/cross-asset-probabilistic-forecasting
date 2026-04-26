@@ -1,40 +1,15 @@
-# Python caches
-__pycache__/
-.pytest_cache/
-.ruff_cache/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Local notebooks / editor clutter
-.DS_Store
-.vscode/
-
-# Generated artifacts
-artifacts/
-
-# Generated demo datasets
-data/*.csv
-
-# Local scratch path accidentally created from editor navigation
-mnt/
-
-# TeX build leftovers
-latex/
 # ---------------------------------------------------------------------------
-# dlecosys — .gitignore
-# ---------------------------------------------------------------------------
-
 # Python bytecode / caches
+# ---------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# Packaging / build artifacts
+# ---------------------------------------------------------------------------
+# Packaging / build
+# ---------------------------------------------------------------------------
 build/
 dist/
 *.egg-info/
@@ -42,14 +17,18 @@ dist/
 MANIFEST
 pip-wheel-metadata/
 
-# Virtualenvs
+# ---------------------------------------------------------------------------
+# Virtual environments
+# ---------------------------------------------------------------------------
 .venv/
 venv/
 env/
 ENV/
 .python-version
 
+# ---------------------------------------------------------------------------
 # Testing / coverage
+# ---------------------------------------------------------------------------
 .pytest_cache/
 .coverage
 .coverage.*
@@ -59,13 +38,17 @@ coverage.xml
 *.cover
 .hypothesis/
 
+# ---------------------------------------------------------------------------
 # Type checkers / linters
+# ---------------------------------------------------------------------------
 .mypy_cache/
 .ruff_cache/
 .pyre/
 .pytype/
 
+# ---------------------------------------------------------------------------
 # IDE / editor
+# ---------------------------------------------------------------------------
 .idea/
 .vscode/
 *.swp
@@ -74,13 +57,18 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
-# Local agent / tooling settings
-.claude/
-
 # Editor tmp / swap artifacts
 *.tmp.*
 
+# ---------------------------------------------------------------------------
+# Local agent / tooling settings
+# ---------------------------------------------------------------------------
+.claude/
+.codex/
+
+# ---------------------------------------------------------------------------
 # Jupyter
+# ---------------------------------------------------------------------------
 .ipynb_checkpoints/
 *.ipynb
 
@@ -88,22 +76,33 @@ Thumbs.db
 # Pipeline outputs — all per-run artifacts live here and are re-creatable
 # ---------------------------------------------------------------------------
 outputs/
+artifacts/
 
 # ---------------------------------------------------------------------------
 # Data — generated or user-owned datasets
 # Commit curated fixtures intentionally; do NOT commit raw dumps or PII.
 # ---------------------------------------------------------------------------
+data/*.csv
 data/synthetic/
 data/raw/
 data/interim/
 *.parquet
 *.pq
 *.pt
-# (override: keep small bundled fixtures if you add any)
+# Override: keep the bundled demo fixtures committed alongside the panel
+# configs so the README recipe and example runs are self-contained.
+!data/train_features.csv
+!data/val_features.csv
+!data/predict_features.csv
 !tests/**/*.pt
 
-# TensorBoard event files
+# ---------------------------------------------------------------------------
+# TensorBoard / Optuna stores
+# ---------------------------------------------------------------------------
 events.out.tfevents.*
-
-# Optuna SQLite storage
 *.db
+
+# ---------------------------------------------------------------------------
+# Local scratch path accidentally created from editor navigation
+# ---------------------------------------------------------------------------
+mnt/
