@@ -1,0 +1,17 @@
+# AR(1) benchmark. Per-asset closed-form OLS fit on the training CSV;
+# one-step-ahead rolling forecast on the predict CSV (last training value
+# carries over into the first predict step). Point forecast only
+# (sigma = NaN in the output).
+
+type: "ar1"
+train_csv: "data/train_features.csv"
+predict_csv: "data/predict_features.csv"
+date_column: "date"
+id_column: "asset_id"
+target_column: "return"
+output_csv: "outputs/benchmarks/ar1/predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

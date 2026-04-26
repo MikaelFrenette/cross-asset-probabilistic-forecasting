@@ -1,0 +1,17 @@
+# GARCH(1,1) benchmark. Per-asset Constant-mean + GARCH(1,1) via the
+# `arch` package; variance is rolled forward one step at a time through
+# the predict window using the fitted (omega, alpha, beta). Full density
+# forecast (mu + time-varying sigma per (asset, date)).
+
+type: "garch"
+train_csv: "data/train_features.csv"
+predict_csv: "data/predict_features.csv"
+date_column: "date"
+id_column: "asset_id"
+target_column: "return"
+output_csv: "outputs/benchmarks/garch/predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

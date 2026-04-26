@@ -72,6 +72,8 @@ __all__ = [
     "PanelTrainingRuntimeConfig",
     "PanelTuningConfig",
     "load_panel_pipeline_config",
+    "PanelBenchmarkConfig",
+    "load_panel_benchmark_config",
     "load_panel_predict_config",
 ]
 
@@ -425,3 +427,52 @@ def load_panel_predict_config(path: str | Path) -> PanelPredictConfig:
             f"Configuration file {path!r} must contain a top-level mapping."
         )
     return PanelPredictConfig.model_validate(payload)
+
+
+class PanelBenchmarkConfig(BaseModel):
+    """
+    Top-level panel benchmark configuration.
+
+    Describes a non-neural benchmark (unconditional mean, AR(1), GARCH(1,1))
+    that fits on ``train_csv`` and writes a ``predictions.csv`` in the
+    same schema used by ``scripts/predict.py``. Consumed by
+    ``scripts/benchmark.py``.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    type: str = Field(pattern="^(unconditional_mean|ar1|garch)$")
+    train_csv: str
+    predict_csv: str
+    date_column: str = "date"
+    id_column: str = "asset_id"
+    target_column: str = "return"
+    output_csv: str
+    logging: PanelLoggingConfig = Field(default_factory=PanelLoggingConfig)
+
+    @field_validator("train_csv", "predict_csv", "date_column", "id_column", "target_column", "output_csv")
+    @classmethod
+    def _non_empty(cls, v: str) -> str:
+        return _validate_non_empty(v)
+
+    def train_csv_path(self) -> Path:
+        return Path(self.train_csv)
+
+    def predict_csv_path(self) -> Path:
+        return Path(self.predict_csv)
+
+    def output_path(self) -> Path:
+        return Path(self.output_csv)
+
+
+def load_panel_benchmark_config(path: str | Path) -> PanelBenchmarkConfig:
+    """Load a YAML benchmark config and validate it."""
+
+    payload = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    if payload is None:
+        raise ValueError(f"Configuration file {path!r} is empty.")
+    if not isinstance(payload, dict):
+        raise TypeError(
+            f"Configuration file {path!r} must contain a top-level mapping."
+        )
+    return PanelBenchmarkConfig.model_validate(payload)

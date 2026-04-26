@@ -1,0 +1,16 @@
+# Unconditional-mean benchmark. Predicts each asset's historical training
+# mean for every test date. Point forecast only (sigma = NaN in the output).
+# Typical role: reference denominator for the RMSE skill score in metrics.py.
+
+type: "unconditional_mean"
+train_csv: "data/train_features.csv"
+predict_csv: "data/predict_features.csv"
+date_column: "date"
+id_column: "asset_id"
+target_column: "return"
+output_csv: "outputs/benchmarks/unconditional_mean/predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
