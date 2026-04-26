@@ -4,18 +4,18 @@
 # one forecast row per (asset, forecast_date) to output_csv.
 
 # Frozen training manifest path.
-manifest_path: "../outputs/density_model_yahoo_v1/training_manifest.json"
+manifest_path: "outputs/density_model_yahoo_v1/training_manifest.json"
 
 data:
   # Prediction / backtest feature CSV.
-  csv_path: "../data/predict_features.csv"
+  csv_path: "data/predict_features.csv"
   # Calendar-date column.
   date_column: "date"
   # Entity-identifier column.
   id_column: "asset_id"
 
 # Output CSV path for rolling model predictions (one row per asset per date).
-output_csv: "../outputs/density_model_yahoo_v1/predictions.csv"
+output_csv: "outputs/density_model_yahoo_v1/predictions.csv"
 
 # Torch device used for inference.
 device: "cuda"

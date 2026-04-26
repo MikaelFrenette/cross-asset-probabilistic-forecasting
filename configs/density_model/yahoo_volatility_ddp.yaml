@@ -4,8 +4,8 @@
 # before train.py (same as the non-DDP lane).
 
 data:
-  train_csv: "../data/train_features.csv"
-  val_csv: "../data/val_features.csv"
+  train_csv: "data/train_features.csv"
+  val_csv: "data/val_features.csv"
   date_column: "date"
   id_column: "asset_id"
 
@@ -57,7 +57,7 @@ model_checkpoint:
   verbose: true
 
 artifacts:
-  output_dir: "../outputs/density_model_yahoo_ddp_v1"
+  output_dir: "outputs/density_model_yahoo_ddp_v1"
 
 logging:
   level: "INFO"

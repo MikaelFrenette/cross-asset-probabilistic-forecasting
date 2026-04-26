@@ -8,9 +8,9 @@
 
 data:
   # Training feature CSV.
-  train_csv: "../data/train_features.csv"
+  train_csv: "data/train_features.csv"
   # Validation feature CSV.
-  val_csv: "../data/val_features.csv"
+  val_csv: "data/val_features.csv"
   # Calendar-date column.
   date_column: "date"
   # Entity-identifier column.
@@ -78,7 +78,7 @@ model_checkpoint:
 artifacts:
   # Artifacts directory (model weights, preprocessing bundle, manifest,
   # vectorized panels). Relative paths resolve against the invocation CWD.
-  output_dir: "../outputs/density_model_yahoo_v1"
+  output_dir: "outputs/density_model_yahoo_v1"
   preprocessing_filename: "preprocessing.json"
   model_state_filename: "model.pt"
   manifest_filename: "training_manifest.json"

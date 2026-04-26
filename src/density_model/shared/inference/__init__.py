@@ -1,16 +1,10 @@
 """
 Inference
 ---------
-Batched inference pipeline for trained PyTorch models.
-
-Classes
--------
-Predictor
-    Wraps a trained model with optional preprocessing and runs batched
-    forward passes at inference time. Loads directly from ModelCheckpoint
-    files via ``Predictor.from_checkpoint``.
+Rolling Gaussian inference for panel forecasting models. The single-
+model + ensemble dispatcher lives in
+:mod:`density_model.shared.inference.panel_predictor`. Import directly
+from there.
 """
 
-from density_model.shared.inference.predictor import Predictor
-
-__all__ = ["Predictor"]
+__all__: list[str] = []

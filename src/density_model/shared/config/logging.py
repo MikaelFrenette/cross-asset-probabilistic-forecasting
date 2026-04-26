@@ -1,7 +1,10 @@
 """
 Logging Setup
 -------------
-Configures the root logger once from a validated LoggingSection.
+Configures the root logger once from a validated logging-section config
+(``PanelLoggingConfig`` from
+:mod:`density_model.shared.config.panel_schema`, or any object with
+``level``, ``include_timestamps`` attributes).
 
 Functions
 ---------
@@ -12,17 +15,17 @@ configure_logging
 from __future__ import annotations
 
 import logging as _logging
-
-from density_model.shared.config.schema import LoggingSection
+from typing import Any
 
 __all__ = ["configure_logging"]
 
 
-def configure_logging(cfg: LoggingSection) -> None:
-    """Configure the root logger from a validated LoggingSection.
+def configure_logging(cfg: Any) -> None:
+    """Configure the root logger from a validated panel logging config.
 
-    Must be called once at the application entrypoint, before any library
-    code emits log records.
+    Called once at the application entrypoint, before any library code
+    emits log records. ``cfg`` must expose ``level`` (str) and
+    ``include_timestamps`` (bool); the panel-pipeline configs all do.
     """
     level = getattr(_logging, cfg.level)
     if cfg.include_timestamps:

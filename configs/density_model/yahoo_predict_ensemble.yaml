@@ -3,14 +3,14 @@
 # manifest produced by scripts/ensemble.py; the predictor detects the
 # ensemble shape and aggregates Gaussian forecasts across survivors.
 
-manifest_path: "../outputs/density_model_yahoo_ensemble_v1/ensemble/ensemble_manifest.json"
+manifest_path: "outputs/density_model_yahoo_ensemble_v1/ensemble/ensemble_manifest.json"
 
 data:
-  csv_path: "../data/predict_features.csv"
+  csv_path: "data/predict_features.csv"
   date_column: "date"
   id_column: "asset_id"
 
-output_csv: "../outputs/density_model_yahoo_ensemble_v1/predictions.csv"
+output_csv: "outputs/density_model_yahoo_ensemble_v1/predictions.csv"
 device: "cuda"
 batch_size: 256
 
