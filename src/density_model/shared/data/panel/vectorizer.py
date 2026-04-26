@@ -223,6 +223,9 @@ class VectorizedPanelDataset(BaseTimeSeriesDataset):
         group: pd.DataFrame,
         features: FeatureGroups,
     ) -> dict[pd.Timestamp, dict[str, Any]]:
+        if self.panel_cfg.target_mode == "next_step":
+            return self._build_next_step_samples(group=group, features=features)
+
         sample_count = len(group) - (self.in_steps + self.horizon + self.out_steps - 1) + 1
         if sample_count <= 0:
             return {}
@@ -271,6 +274,77 @@ class VectorizedPanelDataset(BaseTimeSeriesDataset):
                 list(features.targets),
             ].to_numpy(copy=True)
             samples[forecast_start_date] = sample
+
+        return samples
+
+    def _build_next_step_samples(
+        self,
+        *,
+        group: pd.DataFrame,
+        features: FeatureGroups,
+    ) -> dict[pd.Timestamp, dict[str, Any]]:
+        """
+        Build shifted-by-one targets aligned with every input position.
+
+        For each rolling window ``[s, s+in_steps)`` (inputs) the target is
+        ``[s+1, s+1+in_steps)`` — the input shifted one step forward on the
+        calendar. The last target position ``s+in_steps`` is the single
+        date beyond the input window (the t+1 forecast); the preceding
+        ``in_steps - 1`` target positions reuse dates already present in
+        the input, which is leak-free under the model's causal attention
+        mask (no position i may look at positions > i).
+
+        The sample's ``forecast_start_date`` / ``forecast_end_date`` both
+        point at the last-position date so downstream consumers that
+        expect one forecast per window (e.g. the rolling prediction CSV)
+        still see a single (asset, t+1) row per window.
+
+        The model is expected to emit predictions shaped
+        ``(B, I, in_steps, 2 * target_dim)``; the loss averages over all
+        valid ``B * I * in_steps`` positions.
+        """
+
+        sample_count = len(group) - self.in_steps
+        if sample_count <= 0:
+            return {}
+
+        samples: dict[pd.Timestamp, dict[str, Any]] = {}
+        static_vector = None
+        if features.static_categorical:
+            static_vector = (
+                group.loc[:, list(features.static_categorical)].iloc[0].to_numpy(copy=True)
+            )
+
+        for start_index in range(sample_count):
+            target_start = start_index + 1
+            target_end = target_start + self.in_steps
+            next_step_date = pd.Timestamp(group.iloc[target_end - 1][self.date_column])
+
+            sample: dict[str, Any] = {
+                "forecast_start_date": next_step_date,
+                "forecast_end_date": next_step_date,
+            }
+
+            if features.dynamic:
+                sample["X_continuous"] = group.loc[
+                    group.index[start_index : start_index + self.in_steps],
+                    list(features.dynamic),
+                ].to_numpy(copy=True)
+            if features.dynamic_categorical and self.panel_cfg.include_dynamic_categorical:
+                sample["X_cat_continuous"] = group.loc[
+                    group.index[start_index : start_index + self.in_steps],
+                    list(features.dynamic_categorical),
+                ].to_numpy(copy=True)
+            if static_vector is not None and self.panel_cfg.include_static_categorical:
+                sample["X_cat_static"] = np.broadcast_to(
+                    static_vector[None, :],
+                    (self.in_steps, static_vector.shape[0]),
+                ).copy()
+            sample["y"] = group.loc[
+                group.index[target_start:target_end],
+                list(features.targets),
+            ].to_numpy(copy=True)
+            samples[next_step_date] = sample
 
         return samples
 

@@ -1,0 +1,81 @@
+# Yahoo volatility — GPT-style causal next-step training config.
+#
+# Uses target_mode: "next_step" so every input position k is supervised
+# against input[k+1]. The CausalNextStepTransformer emits a (B, I, T,
+# 2*target_dim) tensor of per-position (mu, sigma) forecasts; at
+# inference the last position is the t+1 forecast.
+#
+# Per-timestep cross-asset attention makes each forward pass T× more
+# attention-heavy than the tail-mode model, so batch_size is lower.
+
+data:
+  train_csv: "data/train_features.csv"
+  val_csv: "data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 21
+  forecast_horizon: 1              # present for tail-mode compat; unused by next_step
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+  target_mode: "next_step"         # ← per-position supervision, shifted-by-one targets
+
+model:
+  name: "causal_next_step_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    # out_steps is ignored by causal_next_step_transformer; heads are per-position.
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 16                   # ← lowered (per-timestep cross-asset attn × T)
+  learning_rate: 0.0001
+  max_epochs: 50
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 2
+
+early_stopping:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  patience: 10
+  min_delta: 0.0
+  warmup: 0
+  restore_best_weights: true
+  verbose: true
+
+model_checkpoint:
+  enabled: true
+  monitor: "val_loss"
+  mode: "min"
+  min_delta: 0.0
+  warmup: 0
+  save_optimizer: true
+  overwrite: true
+  verbose: true
+
+artifacts:
+  output_dir: "outputs/density_model_yahoo_next_step_v1"
+  preprocessing_filename: "preprocessing.json"
+  model_state_filename: "model.pt"
+  manifest_filename: "training_manifest.json"
+  predictions_filename: "predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

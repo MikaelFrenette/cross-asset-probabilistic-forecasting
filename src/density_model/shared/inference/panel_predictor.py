@@ -85,6 +85,7 @@ def _predict_single(cfg: PanelPredictConfig) -> Path:
         batch_size=cfg.batch_size,
         preprocessing=preprocessing,
         target_column=manifest.target_column,
+        target_mode=manifest.target_mode,
     )
     rows = _format_prediction_rows(
         panel_data=panel_data,
@@ -133,6 +134,7 @@ def _predict_ensemble(cfg: PanelPredictConfig) -> Path:
             batch_size=cfg.batch_size,
             preprocessing=preprocessing,
             target_column=manifest.target_column,
+            target_mode=manifest.target_mode,
         )
         per_estimator_mus.append(mu)
         per_estimator_sigmas.append(sigma)
@@ -172,6 +174,8 @@ def build_rolling_prediction_panel_data(
 ) -> dict[str, Any]:
     """Produce vectorized rolling forecast arrays from a raw prediction panel."""
 
+    from density_model.shared.data.panel.config import VectorizedPanelConfig
+
     normalized_panel = _normalize_prediction_panel_to_calendar(
         panel=panel, manifest=manifest, data_cfg=data_cfg
     )
@@ -187,6 +191,7 @@ def build_rolling_prediction_panel_data(
         dynamic_features=manifest.continuous_columns,
         dynamic_categorical_features=manifest.dynamic_categorical_columns or None,
         static_categorical_features=manifest.static_categorical_columns or None,
+        panel_config=VectorizedPanelConfig(target_mode=manifest.target_mode),
     ).generate_sequences()
 
 
@@ -218,13 +223,23 @@ def _run_model_inference(
     batch_size: int,
     preprocessing: PreprocessingBundle,
     target_column: str,
+    target_mode: str,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Run batched rolling inference and return ``(mu, sigma)`` in return space."""
+    """Run batched rolling inference and return ``(mu, sigma)`` in return space.
+
+    For ``target_mode="tail"`` models the forecast sits at position 0 of the
+    per-sample forecast axis (the only or first step after the input). For
+    ``target_mode="next_step"`` models the t+1 forecast sits at the **last**
+    position of the per-position output; earlier positions are in-sample
+    supervisory targets.
+    """
 
     total = int(panel_data["y"].shape[0])
     id_index = list(panel_data["id_index"])
     mu_accumulator = np.zeros((total, len(id_index)), dtype=float)
     sigma_accumulator = np.zeros((total, len(id_index)), dtype=float)
+
+    is_next_step = target_mode == "next_step"
 
     with torch.inference_mode():
         for start_index in range(0, total, batch_size):
@@ -257,7 +272,13 @@ def _run_model_inference(
                 forecast_end_dates=list(forecast_end_dates),
             )
             prediction = model(batch).cpu()
-            mu, sigma = torch.chunk(prediction, chunks=2, dim=-1)
+            mu_full, sigma_full = torch.chunk(prediction, chunks=2, dim=-1)
+            if is_next_step:
+                mu = mu_full[:, :, -1:, :]
+                sigma = sigma_full[:, :, -1:, :]
+            else:
+                mu = mu_full[:, :, :1, :]
+                sigma = sigma_full[:, :, :1, :]
             mu_block, sigma_block = _inverse_transform_return_distribution(
                 mu=mu,
                 sigma=sigma,

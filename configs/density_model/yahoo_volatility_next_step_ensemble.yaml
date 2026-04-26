@@ -1,0 +1,93 @@
+# Yahoo volatility (next-step) — 15-estimator bagging ensemble, keep top 10.
+#
+# Each estimator bootstraps its own subset of forecast dates (OOB dates
+# become that estimator's validation set — EarlyStopping targets OOB loss),
+# reuses a global tokenizer, fits its own per-asset scaler on its in-bag
+# slice (tensor-level, leak-free), and trains a CausalNextStepTransformer.
+# After all 15 finish, top-10 pruning keeps the best OOB val_loss.
+# Inference aggregates across survivors: mu = mean, sigma combined via the
+# law of total variance.
+#
+# If you have winning hyperparameters from a tuning run, swap
+# training.batch_size and training.learning_rate into the values in
+# outputs/<study_dir>/best_params.yaml.
+
+data:
+  train_csv: "data/train_features.csv"
+  val_csv: "data/val_features.csv"      # unused by the ensemble lane; train CSV is bootstrapped
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 21
+  forecast_horizon: 1
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+  target_mode: "next_step"
+
+model:
+  name: "causal_next_step_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  batch_size: 32                         # from yahoo_vol_next_step_bs_lr_v1 best_params (val_loss 0.7058)
+  learning_rate: 0.00005                 # ↑ same study winner
+  max_epochs: 50
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 1
+
+early_stopping:
+  enabled: true
+  monitor: "val_loss"                    # resolves to OOB val_loss in the ensemble lane
+  mode: "min"
+  patience: 10
+  min_delta: 0.0
+  warmup: 0
+  restore_best_weights: true
+  verbose: true
+
+model_checkpoint:
+  enabled: false                         # per-estimator checkpointing adds clutter; turn off
+
+artifacts:
+  output_dir: "outputs/density_model_yahoo_next_step_ensemble_v1"
+  preprocessing_filename: "preprocessing.json"
+  model_state_filename: "model.pt"
+  manifest_filename: "training_manifest.json"
+  predictions_filename: "predictions.csv"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+ensemble:
+  type: "bagging"
+  n_estimators: 15
+  aggregation: "mean"                    # alt: "median"
+  sample_bootstrapper:
+    type: "with_replacement"
+    max_samples: 0.8                     # each estimator sees 80% of unique forecast dates
+  feature_bootstrapper:
+    type: "all"                          # no asset-subspace — every estimator sees all 20 tickers
+    max_features: 1.0
+  pruning:
+    enabled: true
+    keep: 10                             # keep the 10 estimators with lowest OOB val_loss
+    strategy: "top_n"
+  seed: 42

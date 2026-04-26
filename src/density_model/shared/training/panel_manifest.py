@@ -39,6 +39,7 @@ class PanelTrainingManifest(BaseModel):
     continuous_columns: tuple[str, ...]
     dynamic_categorical_columns: tuple[str, ...] = ()
     static_categorical_columns: tuple[str, ...] = ()
+    target_mode: str = "tail"
     calendar: str = "XNYS"
 
     def preprocessing_artifact_path(self) -> Path:

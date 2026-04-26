@@ -241,6 +241,7 @@ def _save_training_artifacts(
         continuous_columns=cfg.features.continuous_columns,
         dynamic_categorical_columns=cfg.features.dynamic_categorical_columns,
         static_categorical_columns=cfg.features.static_categorical_columns,
+        target_mode=cfg.features.target_mode,
     )
     manifest.save(cfg.artifacts.manifest_path())
     logger.info("Saved model weights + manifest to %s", output_dir)

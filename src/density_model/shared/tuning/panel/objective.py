@@ -25,7 +25,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import torch
-from optuna import Trial
+from optuna import Trial, TrialPruned
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
@@ -40,6 +40,7 @@ from density_model.shared.preprocessing.panel import PreprocessingBundle
 from density_model.shared.training.panel_losses import MaskedGaussianLogLikelihood
 from density_model.shared.training.panel_trainer import PanelTrainer
 from density_model.shared.tuning.panel.display import render_fold_header
+from density_model.shared.training.callbacks import EarlyStopping
 from density_model.shared.tuning.panel.pruning_callback import PruningCallback
 from density_model.shared.tuning.search_space import apply_suggestion, suggest_values
 
@@ -194,13 +195,24 @@ class PanelObjective:
             weight_decay=trial_cfg.training.weight_decay,
         )
 
-        callbacks = [
-            PruningCallback(
-                trial=trial,
-                monitor=trial_cfg.tuning.metric,
-                fold_step=fold_index,
-            ),
-        ]
+        pruning_cb = PruningCallback(
+            trial=trial,
+            monitor=trial_cfg.tuning.metric,
+            fold_step=fold_index,
+        )
+        callbacks: list[Any] = [pruning_cb]
+        if val_loader is not None and trial_cfg.early_stopping.enabled:
+            callbacks.append(
+                EarlyStopping(
+                    monitor=trial_cfg.early_stopping.monitor,
+                    mode=trial_cfg.early_stopping.mode,
+                    patience=trial_cfg.early_stopping.patience,
+                    min_delta=trial_cfg.early_stopping.min_delta,
+                    warmup=trial_cfg.early_stopping.warmup,
+                    restore_best_weights=trial_cfg.early_stopping.restore_best_weights,
+                    verbose=trial_cfg.early_stopping.verbose,
+                )
+            )
         device = torch.device(trial_cfg.training.device)
         trainer = PanelTrainer(
             model=model,
@@ -218,6 +230,12 @@ class PanelObjective:
             val_dataloader=val_loader,
             epochs=trial_cfg.tuning.epochs_per_fold,
         )
+
+        # CallbackList swallows exceptions raised by callbacks, so PruningCallback
+        # cannot raise TrialPruned directly. Re-check the flag here (outside the
+        # callback's swallowed scope) so Optuna records PRUNED instead of COMPLETE.
+        if pruning_cb.should_prune:
+            raise TrialPruned()
 
         final_logs = trainer.logger.last_log()
         metric_name = trial_cfg.tuning.metric
@@ -254,6 +272,8 @@ def _resolve_total_trials(tuning: Any) -> int | None:
 
 
 def _vectorize(panel: pd.DataFrame, cfg: PanelPipelineConfig) -> dict[str, Any]:
+    from density_model.shared.data.panel.config import VectorizedPanelConfig
+
     return VectorizedPanelDataset(
         data=panel,
         date_column=cfg.data.date_column,
@@ -265,6 +285,7 @@ def _vectorize(panel: pd.DataFrame, cfg: PanelPipelineConfig) -> dict[str, Any]:
         dynamic_features=cfg.features.continuous_columns,
         dynamic_categorical_features=cfg.features.dynamic_categorical_columns or None,
         static_categorical_features=cfg.features.static_categorical_columns or None,
+        panel_config=VectorizedPanelConfig(target_mode=cfg.features.target_mode),
     ).generate_sequences()
 
 

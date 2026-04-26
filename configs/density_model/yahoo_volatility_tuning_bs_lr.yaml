@@ -11,13 +11,13 @@
 # is a drop-in for scripts/preprocess.py + scripts/train.py.
 
 data:
-  train_csv: "../data/train_features.csv"
-  val_csv: "../data/val_features.csv"
+  train_csv: "data/train_features.csv"
+  val_csv: "data/val_features.csv"
   date_column: "date"
   id_column: "asset_id"
 
 features:
-  sequence_length: 60
+  sequence_length: 21
   forecast_horizon: 1
   target_column: "return"
   continuous_columns: ["return"]
@@ -33,7 +33,7 @@ model:
     num_layers: 2
     dropout: 0.10
     fusion_mode: "concat"
-    out_steps: 1
+    out_steps: 21
     target_dim: 1
     sigma_min: 0.000001
 
@@ -51,12 +51,20 @@ training:
 
 early_stopping:
   enabled: false
+  monitor: "val_loss"
+  mode: "min"
+  patience: 2            # short patience — each fold runs only epochs_per_fold (5) epochs
+  min_delta: 0.0
+  warmup: 0
+  restore_best_weights: true
+  verbose: false         # keep false or fold logs get noisy across 16×3 fold runs
+
 
 model_checkpoint:
   enabled: false
 
 artifacts:
-  output_dir: "../outputs/density_model_yahoo_v1"
+  output_dir: "outputs/density_model_yahoo_v1"
 
 logging:
   level: "INFO"
@@ -68,7 +76,7 @@ tuning:
   direction: "minimize"
   metric: "val_loss"
   sampler: "grid"
-  epochs_per_fold: 5
+  epochs_per_fold: 30
   pruner:
     enabled: true
     type: "median"

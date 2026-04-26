@@ -156,3 +156,4 @@ class VectorizedPanelConfig(BaseModel):
     include_dynamic_categorical: bool = True
     include_static_categorical: bool = True
     dropna: bool = False
+    target_mode: str = Field(default="tail", pattern="^(tail|next_step)$")

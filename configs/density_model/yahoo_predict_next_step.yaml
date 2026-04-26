@@ -1,0 +1,19 @@
+# Matching inference + plot config for yahoo_volatility_next_step.yaml.
+# The predictor reads manifest.target_mode and extracts the last-position
+# prediction (t+1) as the forecast for each rolling window.
+
+manifest_path: "outputs/density_model_yahoo_next_step_v1/training_manifest.json"
+
+data:
+  csv_path: "data/predict_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+output_csv: "outputs/density_model_yahoo_next_step_v1/predictions.csv"
+device: "cuda"
+batch_size: 256
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

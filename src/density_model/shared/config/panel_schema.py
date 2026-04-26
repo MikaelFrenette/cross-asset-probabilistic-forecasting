@@ -137,6 +137,7 @@ class PanelFeaturesConfig(BaseModel):
     continuous_columns: tuple[str, ...]
     dynamic_categorical_columns: tuple[str, ...] = ()
     static_categorical_columns: tuple[str, ...] = ()
+    target_mode: str = Field(default="tail", pattern="^(tail|next_step)$")
 
     @field_validator("target_column")
     @classmethod
@@ -298,6 +299,14 @@ class PanelTuningConfig(BaseModel):
     pruner: PanelPrunerConfig = Field(default_factory=PanelPrunerConfig)
     splitter: PanelSplitterConfig = Field(default_factory=PanelSplitterConfig)
     search_space: dict[str, list[Any]] = Field(default_factory=dict)
+    post_tuning: dict[str, Any] = Field(default_factory=dict)
+    """
+    Nested dict of overrides deep-merged into the emitted ``best_config.yaml``
+    after the winning hyperparameters are applied. Use this to separate the
+    tuning-time budget (small ``max_epochs``, EarlyStopping disabled,
+    ModelCheckpoint disabled) from the winner's full-training budget
+    (real ``max_epochs``, EarlyStopping on, checkpointing on, etc.).
+    """
 
     @field_validator("study_name")
     @classmethod

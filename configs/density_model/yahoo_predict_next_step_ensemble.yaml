@@ -1,0 +1,20 @@
+# Ensemble inference + plot config for yahoo_volatility_next_step_ensemble.yaml.
+# Points manifest_path at the ensemble manifest produced by
+# scripts/ensemble.py; the predictor auto-detects ensemble_type and
+# aggregates across the 10 surviving estimators.
+
+manifest_path: "outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/ensemble_manifest.json"
+
+data:
+  csv_path: "data/predict_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+output_csv: "outputs/density_model_yahoo_next_step_ensemble_v1/predictions.csv"
+device: "cuda"
+batch_size: 256
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true

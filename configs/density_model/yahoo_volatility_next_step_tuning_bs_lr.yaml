@@ -1,0 +1,117 @@
+# Yahoo volatility (next-step) — batch_size × learning_rate grid tuning.
+#
+# Base model: CausalNextStepTransformer with target_mode="next_step"
+# (per-position supervision, shifted-by-one targets, per-timestep
+# cross-asset attention).
+#
+# Grid:
+#   training.batch_size    ∈ {8, 16, 32, 64}            (4 options, lowered
+#                                                         because per-timestep
+#                                                         cross-asset attn is
+#                                                         T× heavier than the
+#                                                         tail-mode model)
+#   training.learning_rate ∈ {5e-5, 1e-4, 3e-4, 1e-3}   (4 options)
+# => 16 trials × 3 expanding-window folds × 5 epochs = 240 epoch-runs.
+# Median pruner enabled so obvious losers get killed after warmup; pruning
+# fix (flag-based propagation) makes this actually take effect.
+#
+# Writes best_params.yaml + best_config.yaml + trials.csv to
+# <artifacts.output_dir>/studies/<study_name>/. The emitted best_config.yaml
+# is a drop-in for scripts/preprocess.py + scripts/train.py.
+
+data:
+  train_csv: "data/train_features.csv"
+  val_csv: "data/val_features.csv"
+  date_column: "date"
+  id_column: "asset_id"
+
+features:
+  sequence_length: 21
+  forecast_horizon: 1              # present for tail-mode compat; unused by next_step
+  target_column: "return"
+  continuous_columns: ["return"]
+  dynamic_categorical_columns: []
+  static_categorical_columns: ["ticker"]
+  target_mode: "next_step"
+
+model:
+  name: "causal_next_step_transformer"
+  params:
+    d_model: 64
+    dim_feedforward: 256
+    num_heads: 4
+    num_layers: 2
+    dropout: 0.10
+    fusion_mode: "concat"
+    # out_steps is ignored by causal_next_step_transformer; heads are per-position.
+    out_steps: 1
+    target_dim: 1
+    sigma_min: 0.000001
+
+training:
+  # batch_size + learning_rate are overridden per-trial by the search space.
+  batch_size: 16
+  learning_rate: 0.0001
+  max_epochs: 1     # ignored by tuning; each fold uses tuning.epochs_per_fold
+  random_seed: 42
+  device: "cuda"
+  weight_decay: 0.0
+  shuffle: true
+  grad_clip: 1.0
+  verbose: 2
+
+early_stopping:
+  enabled: false
+
+model_checkpoint:
+  enabled: false
+
+artifacts:
+  output_dir: "outputs/density_model_yahoo_next_step_v1"
+
+logging:
+  level: "INFO"
+  format: "text"
+  include_timestamps: true
+
+tuning:
+  study_name: "yahoo_vol_next_step_bs_lr_v1"
+  direction: "minimize"
+  metric: "val_loss"
+  sampler: "grid"
+  epochs_per_fold: 20
+  pruner:
+    enabled: true
+    type: "median"
+    n_warmup_steps: 1
+    n_startup_trials: 3
+  splitter:
+    type: "expanding_window"
+    n_splits: 3
+  search_space:
+    training.batch_size: [8, 16, 32, 64]
+    training.learning_rate: [0.00005, 0.0001, 0.0003, 0.001]
+  # Overrides deep-merged into the emitted best_config.yaml AFTER the
+  # winning hyperparameters are substituted. Keeps tuning-time settings
+  # (max_epochs=1, ES off) separate from the winner's full-budget run.
+  post_tuning:
+    training:
+      max_epochs: 50
+    early_stopping:
+      enabled: true
+      monitor: "val_loss"
+      mode: "min"
+      patience: 10
+      min_delta: 0.0
+      warmup: 0
+      restore_best_weights: true
+      verbose: true
+    model_checkpoint:
+      enabled: true
+      monitor: "val_loss"
+      mode: "min"
+      min_delta: 0.0
+      warmup: 0
+      save_optimizer: true
+      overwrite: true
+      verbose: true

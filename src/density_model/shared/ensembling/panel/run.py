@@ -367,6 +367,7 @@ def _train_one_estimator(
         continuous_columns=cfg.features.continuous_columns,
         dynamic_categorical_columns=cfg.features.dynamic_categorical_columns,
         static_categorical_columns=cfg.features.static_categorical_columns,
+        target_mode=cfg.features.target_mode,
     )
     manifest.save(estimator_manifest_path)
 
@@ -569,6 +570,8 @@ def _sorted_unique_dates(panel: pd.DataFrame, date_column: str) -> np.ndarray:
 
 
 def _vectorize(panel: pd.DataFrame, cfg: PanelPipelineConfig) -> dict[str, Any]:
+    from density_model.shared.data.panel.config import VectorizedPanelConfig
+
     return VectorizedPanelDataset(
         data=panel,
         date_column=cfg.data.date_column,
@@ -580,6 +583,7 @@ def _vectorize(panel: pd.DataFrame, cfg: PanelPipelineConfig) -> dict[str, Any]:
         dynamic_features=cfg.features.continuous_columns,
         dynamic_categorical_features=cfg.features.dynamic_categorical_columns or None,
         static_categorical_features=cfg.features.static_categorical_columns or None,
+        panel_config=VectorizedPanelConfig(target_mode=cfg.features.target_mode),
     ).generate_sequences()
 
 
