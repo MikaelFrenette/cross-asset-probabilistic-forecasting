@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "density_model"
 version = "0.1.0"
-description = "Deep learning ecosystem — model-agnostic training infrastructure."
+description = "Panel density-forecasting library — Gaussian (μ, σ) forecasts per asset per date, with full training/tuning/ensembling/benchmarking infrastructure and a downstream portfolio-construction example."
 requires-python = ">=3.10"
 dependencies = [
     "torch>=2.0",

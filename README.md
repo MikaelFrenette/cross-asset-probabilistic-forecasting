@@ -72,8 +72,15 @@ model is not beating a naive point forecaster on raw accuracy. Its
 value is in the *shape* of the predictive distribution: a calibrated
 `σ` (see §1) and a cross-sectional `μ` that ranks returns (see §2).
 The portfolio result in §3 comes from those two together, not from
-sharper point forecasts. `scripts/metrics.py --reference unconditional_mean`
-prints the comparison table so the reader can verify this themselves.
+sharper point forecasts. Verify against the bundled benchmarks:
+
+```bash
+python scripts/metrics.py \
+  --config configs/density_model/yahoo_predict_next_step_ensemble.yaml \
+  --reference outputs/benchmarks/unconditional_mean/predictions.csv \
+  --benchmarks outputs/benchmarks/ar1/predictions.csv \
+               outputs/benchmarks/garch/predictions.csv
+```
 
 ---
 

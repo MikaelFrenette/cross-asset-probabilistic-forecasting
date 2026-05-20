@@ -6,12 +6,12 @@ in-flight trial at the end of every epoch. When Optuna decides the trial
 should prune, the callback sets an internal ``should_prune`` flag and
 flips ``trainer.stop_training`` so the fold's epoch loop exits cleanly.
 
-dlecosys' :class:`CallbackList` is safe-by-default and swallows every
-exception raised inside a callback, so raising ``optuna.TrialPruned``
-directly from ``on_epoch_end`` never reaches the objective. Instead the
-tuning objective must inspect the callback's ``should_prune`` flag after
-``trainer.train()`` returns and raise ``TrialPruned`` itself — see
-:meth:`PanelObjective._evaluate_fold`.
+density_model's :class:`CallbackList` is safe-by-default and swallows
+every exception raised inside a callback, so raising
+``optuna.TrialPruned`` directly from ``on_epoch_end`` never reaches the
+objective. Instead the tuning objective must inspect the callback's
+``should_prune`` flag after ``trainer.train()`` returns and raise
+``TrialPruned`` itself — see :meth:`PanelObjective._evaluate_fold`.
 
 Classes
 -------
