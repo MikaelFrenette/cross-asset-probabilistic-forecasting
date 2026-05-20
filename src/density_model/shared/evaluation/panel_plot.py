@@ -213,14 +213,49 @@ def _resolve_manifest_metadata(manifest_path: Path) -> tuple[str, str]:
         ensemble_manifest = load_panel_ensemble_manifest(manifest_path)
         if not ensemble_manifest.estimators:
             raise ValueError("Ensemble manifest contains no surviving estimators.")
-        first_estimator = load_panel_manifest(
-            Path(ensemble_manifest.estimators[0].estimator_manifest_path)
+        first_estimator_path = _resolve_estimator_manifest_path(
+            ensemble_manifest_path=manifest_path,
+            entry_path=ensemble_manifest.estimators[0].estimator_manifest_path,
         )
+        first_estimator = load_panel_manifest(first_estimator_path)
         return first_estimator.target_column, (
             f"ensemble ({ensemble_manifest.aggregation}, n={len(ensemble_manifest.estimators)})"
         )
     manifest = load_panel_manifest(manifest_path)
     return manifest.target_column, manifest.model_name
+
+
+def _resolve_estimator_manifest_path(*, ensemble_manifest_path: Path, entry_path: str) -> Path:
+    """
+    Locate an estimator's training manifest from an ensemble manifest entry.
+
+    ``ensemble.py`` writes absolute paths for the originating machine. When
+    the ensemble manifest is later bundled and shipped (e.g. as a README
+    demo fixture), those absolute paths no longer resolve. Try in order:
+    the recorded path verbatim, the same ``estimator_N/training_manifest.json``
+    relocated under the ensemble manifest's own parent directory, and
+    finally any sibling ``estimator_*/training_manifest.json``.
+    """
+
+    candidate = Path(entry_path)
+    if candidate.exists():
+        return candidate
+
+    estimator_dir_name = candidate.parent.name
+    relocated = ensemble_manifest_path.parent / estimator_dir_name / candidate.name
+    if relocated.exists():
+        return relocated
+
+    siblings = sorted(
+        ensemble_manifest_path.parent.glob("estimator_*/training_manifest.json")
+    )
+    if siblings:
+        return siblings[0]
+
+    raise FileNotFoundError(
+        f"Cannot resolve estimator manifest {entry_path!r}. Tried verbatim, "
+        f"{relocated}, and sibling estimator_*/training_manifest.json globs."
+    )
 
 
 def _load_predictions(path: Path) -> pd.DataFrame:

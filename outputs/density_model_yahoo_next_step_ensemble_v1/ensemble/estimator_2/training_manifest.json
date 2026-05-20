@@ -1,0 +1,34 @@
+{
+  "preprocessing_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_2/preprocessing.json",
+  "model_state_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_2/model.pt",
+  "model_name": "causal_next_step_transformer",
+  "model_params": {
+    "d_model": 64,
+    "dim_feedforward": 256,
+    "num_heads": 4,
+    "num_layers": 2,
+    "dropout": 0.1,
+    "fusion_mode": "concat",
+    "out_steps": 1,
+    "target_dim": 1,
+    "sigma_min": 1e-6,
+    "continuous_dim": 1,
+    "static_categorical_cardinalities": [
+      22
+    ]
+  },
+  "sequence_length": 21,
+  "forecast_horizon": 1,
+  "target_column": "return",
+  "date_column": "date",
+  "id_column": "asset_id",
+  "continuous_columns": [
+    "return"
+  ],
+  "dynamic_categorical_columns": [],
+  "static_categorical_columns": [
+    "ticker"
+  ],
+  "target_mode": "next_step",
+  "calendar": "XNYS"
+}

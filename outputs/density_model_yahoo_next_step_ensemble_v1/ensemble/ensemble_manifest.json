@@ -1,0 +1,56 @@
+{
+  "ensemble_type": "bagging",
+  "aggregation": "mean",
+  "estimators": [
+    {
+      "index": 1,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_1/training_manifest.json",
+      "oob_val_loss": 0.5627361931227391
+    },
+    {
+      "index": 13,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_13/training_manifest.json",
+      "oob_val_loss": 0.5683656806205403
+    },
+    {
+      "index": 11,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_11/training_manifest.json",
+      "oob_val_loss": 0.5879246687586129
+    },
+    {
+      "index": 12,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_12/training_manifest.json",
+      "oob_val_loss": 0.6111362936045123
+    },
+    {
+      "index": 4,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_4/training_manifest.json",
+      "oob_val_loss": 0.6118298586837891
+    },
+    {
+      "index": 10,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_10/training_manifest.json",
+      "oob_val_loss": 0.6165700887885148
+    },
+    {
+      "index": 7,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_7/training_manifest.json",
+      "oob_val_loss": 0.6206332944197263
+    },
+    {
+      "index": 9,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_9/training_manifest.json",
+      "oob_val_loss": 0.6224185046509101
+    },
+    {
+      "index": 14,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_14/training_manifest.json",
+      "oob_val_loss": 0.6224768221643507
+    },
+    {
+      "index": 2,
+      "estimator_manifest_path": "/mnt/c/users/user/dropbox/density_model/outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_2/training_manifest.json",
+      "oob_val_loss": 0.6274689879468023
+    }
+  ]
+}

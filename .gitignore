@@ -75,8 +75,21 @@ Thumbs.db
 # ---------------------------------------------------------------------------
 # Pipeline outputs — all per-run artifacts live here and are re-creatable
 # ---------------------------------------------------------------------------
-outputs/
+outputs/**
 artifacts/
+# Override: keep the bundled demo predictions committed so the README
+# recipes (plot_calibration / plot_signal / metrics / construct_portfolio)
+# run end-to-end against the bundled fixtures without re-training.
+!outputs/
+!outputs/density_model_yahoo_next_step_ensemble_v1/
+!outputs/density_model_yahoo_next_step_ensemble_v1/predictions.csv
+!outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/
+!outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/ensemble_manifest.json
+!outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_*/
+!outputs/density_model_yahoo_next_step_ensemble_v1/ensemble/estimator_*/training_manifest.json
+!outputs/benchmarks/
+!outputs/benchmarks/*/
+!outputs/benchmarks/*/predictions.csv
 
 # ---------------------------------------------------------------------------
 # Data — generated or user-owned datasets

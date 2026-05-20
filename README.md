@@ -19,6 +19,11 @@ example.
 
 ## Showcase
 
+The plot below is the *end* of the pipeline — what a downstream
+consumer of the (μ, σ) forecasts does with them. The three sections
+beneath it (§1 probabilistic forecast → §2 cross-sectional signal →
+§3 portfolio) are the proof of how it gets built.
+
 20 US equities, 2020-05 → 2026-03, daily rebalance. Density forecasts
 from a 10-estimator bagging ensemble drive a mean-variance portfolio
 under a full-investment constraint (`∑w = 1`, shorting allowed).
@@ -60,6 +65,15 @@ and benchmark it.
 consumer might do with the (μ, σ) outputs. It produces a working backtest
 with sensible defaults; it is not the system to build on if your goal is
 serious portfolio research. Bring your own optimizer.
+
+**One honest caveat.** Per-step RMSE on the bundled fixtures runs at
+`rmse_skill ≈ 1.00` against the unconditional-mean benchmark — the
+model is not beating a naive point forecaster on raw accuracy. Its
+value is in the *shape* of the predictive distribution: a calibrated
+`σ` (see §1) and a cross-sectional `μ` that ranks returns (see §2).
+The portfolio result in §3 comes from those two together, not from
+sharper point forecasts. `scripts/metrics.py --reference unconditional_mean`
+prints the comparison table so the reader can verify this themselves.
 
 ---
 
