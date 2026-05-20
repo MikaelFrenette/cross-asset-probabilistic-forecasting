@@ -93,7 +93,7 @@ src/density_model/
     tuning/panel/                      Optuna objective, study, splitter_builder, pruning_callback, best_config emitter
     ensembling/panel/                  bagging runner, bootstrappers, aggregation, pruning, manifest, display
     inference/                         panel_predictor (auto single-vs-ensemble dispatch)
-    evaluation/                        panel_plot, panel_metrics
+    evaluation/                        panel_plot, panel_metrics, calibration_plot, signal_plot
 scripts/                               thin entrypoints — config → library → exit
   preprocess.py                        raw CSVs → fitted bundle + vectorized panels
   train.py                             single-GPU or DDP via torchrun
@@ -102,6 +102,8 @@ scripts/                               thin entrypoints — config → library �
   benchmark.py                         AR(1) / UnconditionalMean / GARCH(1,1)
   predict.py                           rolling Gaussian inference (auto single/ensemble)
   plot.py                              per-asset 3-panel forecast report
+  plot_calibration.py                  σ calibration showcase (σ vs realized vol + reliability)
+  plot_signal.py                       signal showcase (per-bucket return + Q5−Q1 spread)
   metrics.py                           NLL / CRPS / MAE / RMSE / coverage + optional skill score
   construct_portfolio.py               downstream example (not a maintained lane)
   plot_portfolio.py                    cumulative return vs SPY

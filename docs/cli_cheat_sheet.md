@@ -17,6 +17,8 @@ plotting, metrics.
 | `scripts/benchmark.py`  | Fits AR(1) / UnconditionalMean / GARCH(1,1) → `predictions.csv` in the same schema as `predict.py` | When you need baseline comparisons |
 | `scripts/predict.py`    | Rolling Gaussian inference on an external CSV → `predictions.csv`. Auto-detects single-model vs ensemble manifest. | After training or ensembling |
 | `scripts/plot.py`       | Per-asset three-panel forecast report (μ, σ, μ/σ signal) → `plots/<asset>.png` | After `predict.py` |
+| `scripts/plot_calibration.py` | Two-panel σ showcase — σ vs rolling realized vol for a focus asset + panel-wide reliability diagram → `sigma_calibration.png` | After `predict.py` |
+| `scripts/plot_signal.py` | Two-panel signal showcase — per-bucket annualized realized return + Q5−Q1 cumulative spread vs benchmark → `signal_decile.png` | After `predict.py` |
 | `scripts/metrics.py`    | Joins predictions + realized targets; emits NLL / CRPS / MAE / RMSE / bias / coverage / mean σ; optional skill scores vs a reference | After `predict.py` (and optional benchmarks) |
 
 ---
@@ -261,8 +263,9 @@ python scripts/preprocess.py --config <cfg> --overwrite
 ```
 
 `train.py`, `tune.py`, `ensemble.py`, `predict.py`, `plot.py`,
-`metrics.py`, `benchmark.py` overwrite by default (they write to
-deterministic paths derived from the config).
+`plot_calibration.py`, `plot_signal.py`, `metrics.py`, `benchmark.py`
+overwrite by default (they write to deterministic paths derived from
+the config).
 
 ---
 

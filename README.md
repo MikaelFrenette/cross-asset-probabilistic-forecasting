@@ -63,7 +63,7 @@ serious portfolio research. Bring your own optimizer.
 
 ---
 
-## Three layers
+## The pipeline, end-to-end
 
 ### 1 · Density forecasting
 
@@ -82,23 +82,40 @@ Loss is a masked Gaussian negative log-likelihood. Switch between
 architectures by changing `model.name` and `features.target_mode` in the
 config.
 
-### 2 · Operating capabilities
+The point of forecasting a full Gaussian — not just a point μ — is that
+`σ` carries the model's instantaneous risk estimate. Visible below: the
+model's `σ` for SPY tracks rolling realized volatility through every
+regime (left), and standardized residuals `(y - μ) / σ` cover the panel
+at roughly Gaussian nominal levels (right). The ±1σ band is slightly
+conservative (empirical 0.719 vs nominal 0.683) and the ±2σ band is
+slightly under-covered (0.940 vs 0.955) — honest but well-behaved.
 
-Every lane is a thin script driving one YAML config:
+![σ calibration](docs/images/sigma_calibration.png)
 
-| Lane | Script | What it does |
-|------|--------|--------------|
-| Preprocess | `scripts/preprocess.py` | Raw CSVs → fitted preprocessing bundle + vectorized panels |
-| Train (single) | `scripts/train.py` | One model, one GPU |
-| Train (DDP) | `torchrun scripts/train.py` | Multi-GPU via `DistributedDataParallel` |
-| Tune | `scripts/tune.py` | Optuna grid/random search over a time-series CV splitter, with median pruning and an automatically emitted `best_config.yaml` |
-| Ensemble | `scripts/ensemble.py` | N bootstrap estimators with OOB-as-val early stopping and top-K pruning |
-| Benchmark | `scripts/benchmark.py` | AR(1), unconditional mean, or GARCH(1,1) — write `predictions.csv` in the same schema |
-| Predict | `scripts/predict.py` | Auto-detects single-model vs ensemble manifest and aggregates Gaussians (mean μ, law-of-total-variance σ) |
-| Plot | `scripts/plot.py` | Per-asset 3-panel forecast report (μ ± σ bands, σ vs realized vol, μ/σ signal) |
-| Metrics | `scripts/metrics.py` | NLL / CRPS / MAE / RMSE / coverage at ±1σ / ±2σ / σ̄, with optional `--reference` for RMSE skill scores against the unconditional-mean benchmark |
+```bash
+python scripts/plot_calibration.py --config configs/density_model/yahoo_predict_next_step_ensemble.yaml
+```
 
-Full command reference: [`docs/cli_cheat_sheet.md`](docs/cli_cheat_sheet.md).
+### 2 · Signal extraction
+
+The model's predicted `μ` carries cross-sectional ranking information.
+For every forecast date the assets are z-scored on `μ` and split into
+five quantile buckets; pooled across all 1,542 forecast days, the top
+bucket (Q5) outperforms the bottom (Q1) by **+13.0% / year** in
+realized returns. The equal-weight Q5−Q1 long/short spread runs at
+**Sharpe +0.51** — a market-neutral signal layered on top of the
+density forecast, not a market-beta proxy.
+
+![Signal decile spread](docs/images/signal_decile.png)
+
+```bash
+python scripts/plot_signal.py --config configs/density_model/yahoo_predict_next_step_ensemble.yaml
+```
+
+`σ` does not carry directional information at the 1-day horizon — it
+does its job in **§1** (risk calibration) and as the optimizer's risk
+input in **§3**. Use `--signal-column mu_over_sigma` to inspect the
+risk-adjusted variant.
 
 ### 3 · Downstream example: portfolio construction
 
@@ -122,6 +139,28 @@ small module under `src/density_model/portfolio/` so you can swap pieces
 or replace the whole thing. **It's not a portfolio-construction lane and
 won't be extended in lockstep with the forecasting library** — extend in
 your own downstream code.
+
+---
+
+## Operating capabilities
+
+Every lane above is a thin script driving one YAML config:
+
+| Lane | Script | What it does |
+|------|--------|--------------|
+| Preprocess | `scripts/preprocess.py` | Raw CSVs → fitted preprocessing bundle + vectorized panels |
+| Train (single) | `scripts/train.py` | One model, one GPU |
+| Train (DDP) | `torchrun scripts/train.py` | Multi-GPU via `DistributedDataParallel` |
+| Tune | `scripts/tune.py` | Optuna grid/random search over a time-series CV splitter, with median pruning and an automatically emitted `best_config.yaml` |
+| Ensemble | `scripts/ensemble.py` | N bootstrap estimators with OOB-as-val early stopping and top-K pruning |
+| Benchmark | `scripts/benchmark.py` | AR(1), unconditional mean, or GARCH(1,1) — write `predictions.csv` in the same schema |
+| Predict | `scripts/predict.py` | Auto-detects single-model vs ensemble manifest and aggregates Gaussians (mean μ, law-of-total-variance σ) |
+| Plot | `scripts/plot.py` | Per-asset 3-panel forecast report (μ ± σ bands, σ vs realized vol, μ/σ signal) |
+| Calibration | `scripts/plot_calibration.py` | Two-panel σ showcase — σ vs rolling realized vol + panel-wide reliability diagram |
+| Signal | `scripts/plot_signal.py` | Two-panel signal showcase — per-bucket annualized return + Q5−Q1 cumulative spread |
+| Metrics | `scripts/metrics.py` | NLL / CRPS / MAE / RMSE / coverage at ±1σ / ±2σ / σ̄, with optional `--reference` for RMSE skill scores against the unconditional-mean benchmark |
+
+Full command reference: [`docs/cli_cheat_sheet.md`](docs/cli_cheat_sheet.md).
 
 ---
 
